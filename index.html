@@ -4,22 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sciensearch - Scientific Paper Analyzer</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Mermaid.js for flowcharts -->
+    <script src="https://unpkg.com/lucide@0.263.1/dist/umd/lucide.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-    <!-- PDF.js for reading PDF files in browser -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-        mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+        mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'strict', flowchart: { htmlLabels: true, curve: 'basis' } });
     </script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-cyan-500 selection:text-white">
 
-    <!-- Header / Navbar -->
     <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -31,100 +26,106 @@
                     <p class="text-xs text-slate-400">Automatic analyzer for scientific methodologies and protocols</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-3">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-400 rounded-full animate-pulse"></span> System Active
-                </span>
-            </div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-400 rounded-full animate-pulse"></span> System Active
+            </span>
         </div>
     </header>
 
-    <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        <!-- Left Column: Data Input & History -->
+
+        <!-- LEFT COLUMN -->
         <section class="lg:col-span-5 space-y-6">
             <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur">
                 <h2 class="text-lg font-semibold flex items-center gap-2 mb-4">
                     <i data-lucide="file-text" class="text-cyan-400 w-5 h-5"></i> Load Paper or Methodology
                 </h2>
 
-                <!-- PDF / TXT File Upload Button -->
                 <div class="mb-4">
-                    <label class="block text-xs font-medium text-slate-400 mb-2">Upload PDF or TXT paper (Robust Extractor):</label>
+                    <label class="block text-xs font-medium text-slate-400 mb-2">Upload PDF or TXT paper:</label>
                     <label class="w-full bg-slate-800 hover:bg-slate-700 border-2 border-dashed border-cyan-500/40 hover:border-cyan-400 p-3 rounded-xl cursor-pointer transition flex items-center justify-center gap-3 text-cyan-300 shadow-inner group">
                         <i data-lucide="upload-cloud" class="w-5 h-5 group-hover:scale-110 transition"></i>
                         <div class="text-left">
                             <span class="text-xs font-semibold block text-white" id="uploadButtonLabel">Click to upload PDF or TXT</span>
-                            <span class="text-[10px] text-slate-400">Isolates methodology & formats APA citation</span>
+                            <span class="text-[10px] text-slate-400">Only the Methods section is extracted. The file is never stored.</span>
                         </div>
                         <input type="file" id="paperFileInput" accept=".pdf,.txt" class="hidden" onchange="handleFileUpload(event)">
                     </label>
-                    <p id="uploadStatus" class="text-[11px] text-emerald-400 mt-1 hidden text-center font-medium"></p>
+                    <p id="uploadStatus" class="text-[11px] mt-1 hidden text-center font-medium"></p>
                 </div>
 
-                <!-- APA Citation Metadata Fields -->
+                <!-- APA fields -->
+                <p class="text-[11px] font-medium text-slate-400 mb-1">Reference (APA 7). Auto-filled from the PDF when possible; please review:</p>
                 <div class="grid grid-cols-2 gap-3 mb-4">
-                    <div>
-                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Author(s) (APA):</label>
-                        <input type="text" id="paperAuthor" placeholder="e.g., Smith, J. et al." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+                    <div class="col-span-2">
+                        <input type="text" id="paperAuthor" placeholder="Authors: Smith, J., & Doe, A." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Year:</label>
-                        <input type="text" id="paperYear" placeholder="e.g., 2026" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+                        <input type="text" id="paperYear" placeholder="Year: 2024" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <input type="text" id="paperDoi" placeholder="DOI: 10.xxxx/xxxxx" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div class="col-span-2">
+                        <input type="text" id="paperTitle" placeholder="Article title" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <input type="text" id="paperJournal" placeholder="Journal name" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <input type="text" id="paperVol" placeholder="Volume(issue), pages" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
                     </div>
                 </div>
 
-                <!-- Quick Presets -->
                 <div class="mb-4">
-                    <label class="block text-xs font-medium text-slate-400 mb-2">Or try with a preloaded example:</label>
+                    <label class="block text-xs font-medium text-slate-400 mb-2">Or try an example methodology:</label>
                     <div class="grid grid-cols-3 gap-2">
                         <button onclick="loadPreset('gold')" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700/60 p-2.5 rounded-xl transition text-left">
-                            <span class="font-medium block text-cyan-300">Gold Nanoparticles</span>
-                            <span class="text-[10px] text-slate-400">Turkevich (2023)</span>
+                            <span class="font-medium block text-cyan-300">Gold NPs</span>
+                            <span class="text-[10px] text-slate-400">Citrate reduction</span>
                         </button>
                         <button onclick="loadPreset('dna')" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700/60 p-2.5 rounded-xl transition text-left">
                             <span class="font-medium block text-cyan-300">DNA Extraction</span>
-                            <span class="text-[10px] text-slate-400">Doyle (2022)</span>
+                            <span class="text-[10px] text-slate-400">CTAB method</span>
                         </button>
                         <button onclick="loadPreset('pcr')" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700/60 p-2.5 rounded-xl transition text-left">
                             <span class="font-medium block text-cyan-300">PCR Assay</span>
-                            <span class="text-[10px] text-slate-400">Mullis (2021)</span>
+                            <span class="text-[10px] text-slate-400">Standard PCR</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Main Textarea -->
                 <div class="space-y-2">
-                    <label for="paperText" class="block text-xs font-medium text-slate-400">Paper text / Materials & Methods section:</label>
-                    <textarea id="paperText" rows="5" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition resize-none" placeholder="Extracted methodology will appear here..."></textarea>
+                    <label for="paperText" class="block text-xs font-medium text-slate-400">Methodology text (you can edit it before generating):</label>
+                    <textarea id="paperText" rows="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition resize-none" placeholder="The extracted Methods section will appear here. You can also paste it manually."></textarea>
                 </div>
 
-                <!-- Analysis Button & Save Button -->
                 <div class="mt-4 flex gap-2">
-                    <button onclick="analizarPaper()" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-semibold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                    <button onclick="generateProtocol()" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-semibold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
                         <i data-lucide="wand-2" class="w-5 h-5"></i> Generate Protocol
                     </button>
-                    <button onclick="saveCurrentPaper()" title="Save paper in APA format to local storage" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 px-4 rounded-xl transition flex items-center justify-center">
-                        <i data-lucide="bookmark-plus" class="w-5 h-5"></i>
+                    <button onclick="copyCurrentApa()" title="Copy APA reference" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 px-4 rounded-xl transition flex items-center justify-center">
+                        <i data-lucide="quote" class="w-5 h-5"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Saved Papers / History Box -->
+            <!-- History -->
             <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur">
-                <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center justify-between mb-1">
                     <h3 class="text-sm font-semibold flex items-center gap-2 text-slate-200">
-                        <i data-lucide="archive" class="text-cyan-400 w-4 h-4"></i> Saved Papers (APA Format)
+                        <i data-lucide="archive" class="text-cyan-400 w-4 h-4"></i> Usage history (APA)
                     </h3>
-                    <span id="savedCount" class="text-xs bg-slate-800 px-2 py-0.5 rounded-full text-slate-400">0 saved</span>
+                    <div class="flex items-center gap-1">
+                        <span id="savedCount" class="text-xs bg-slate-800 px-2 py-0.5 rounded-full text-slate-400">0 entries</span>
+                        <button onclick="copyBibliography()" title="Copy all references (alphabetical)" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-cyan-400"><i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="clearHistory()" title="Clear history" class="p-1.5 bg-slate-800 hover:bg-red-900/40 rounded text-red-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </div>
                 </div>
-                <div id="savedList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                    <p class="text-xs text-slate-500 italic text-center py-4">No saved papers yet. Click the bookmark icon to store your analysis.</p>
-                </div>
+                <p class="text-[10px] text-slate-500 mb-3">Only the reference and basic stats are stored in this browser. Paper text is never saved.</p>
+                <div id="savedList" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
             </div>
 
-            <!-- Quick Stats -->
             <div class="grid grid-cols-3 gap-4">
                 <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-4 text-center">
                     <span class="block text-xl font-bold text-cyan-400" id="statSteps">0</span>
@@ -135,17 +136,15 @@
                     <span class="text-[11px] text-slate-400">Reagents / Items</span>
                 </div>
                 <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-4 text-center">
-                    <span class="block text-xl font-bold text-purple-400" id="statTime">0 min</span>
+                    <span class="block text-xl font-bold text-purple-400" id="statTime">n/a</span>
                     <span class="text-[11px] text-slate-400">Estimated time</span>
                 </div>
             </div>
         </section>
 
-        <!-- Right Column: Results (Flowchart & Step-by-Step) -->
+        <!-- RIGHT COLUMN -->
         <section class="lg:col-span-7 space-y-6">
             <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur min-h-[600px] flex flex-col">
-                
-                <!-- View Tabs -->
                 <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
                     <div class="flex space-x-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
                         <button onclick="switchTab('flowchart')" id="tabFlowchartBtn" class="px-4 py-2 text-xs font-medium rounded-lg bg-cyan-500/10 text-cyan-400 transition flex items-center gap-2">
@@ -155,434 +154,610 @@
                             <i data-lucide="list-ordered" class="w-4 h-4"></i> Step-by-Step
                         </button>
                     </div>
-
                     <div class="flex items-center gap-2">
-                        <button onclick="copiarResultados()" title="Copy text" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition">
+                        <button onclick="copyProtocol()" title="Copy protocol as text" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition">
                             <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="downloadProtocol()" title="Download protocol (.md)" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition">
+                            <i data-lucide="download" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Tab Content: Flowchart -->
                 <div id="tabFlowchart" class="flex-1 flex flex-col justify-center items-center">
-                    <div id="mermaidContainer" class="w-full overflow-x-auto p-4 bg-slate-950/60 rounded-xl border border-slate-800/60 flex justify-center">
-                        <div class="mermaid">
-                            graph TD
-                                A[Load Paper] --> B[Smart Methodology Extraction]
-                                B --> C[Generate Protocol & Flowchart]
-                        </div>
-                    </div>
-                    <p class="text-[11px] text-slate-500 mt-3 text-center">Flowchart automatically generated from the extracted experimental workflow.</p>
+                    <div id="mermaidContainer" class="w-full overflow-auto max-h-[560px] p-4 bg-slate-950/60 rounded-xl border border-slate-800/60 flex justify-center"></div>
+                    <p class="text-[11px] text-slate-500 mt-3 text-center">Flowchart generated from the steps detected in the methodology.</p>
                 </div>
 
-                <!-- Tab Content: Step-by-Step -->
-                <div id="tabSteps" class="hidden flex-1 space-y-4 overflow-y-auto max-h-[500px] pr-2">
+                <div id="tabSteps" class="hidden flex-1 space-y-4 overflow-y-auto max-h-[560px] pr-2">
                     <div class="text-center text-slate-500 py-12">
                         <i data-lucide="flask-conical" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
                         <p class="text-sm">No protocol processed yet.</p>
                         <p class="text-xs">Select an example or upload a file to begin.</p>
                     </div>
                 </div>
-
             </div>
         </section>
-
     </main>
 
-    <!-- Logic and UI Scripts -->
-    <script>
-        lucide.createIcons();
+    <div id="toast" class="fixed bottom-4 right-4 bg-slate-800 border border-slate-700 text-slate-100 text-xs px-4 py-2 rounded-lg shadow-xl opacity-0 pointer-events-none transition-opacity"></div>
 
-        let currentActiveData = {
-            apaTitle: "Author, A. (2026). Scientific Protocol Analysis.",
-            text: "",
-            stepsCount: 0,
-            reqsCount: 0,
-            time: "0 min",
-            mermaid: "graph TD\n    A[Empty] --> B[Run analysis]",
-            stepsHtml: ""
-        };
+<script>
+/* =====================================================================
+   Helpers
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+let toastTimer;
+function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.style.opacity = 1;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.style.opacity = 0, 2200);
+}
+function setStatus(msg, kind = 'ok') {
+    const el = $('uploadStatus');
+    el.textContent = msg;
+    el.className = 'text-[11px] mt-1 text-center font-medium ' + ({ ok: 'text-emerald-400', warn: 'text-amber-400', err: 'text-red-400', info: 'text-slate-400' }[kind]);
+}
+function fmtMin(m) {
+    if (!m) return 'n/a';
+    if (m < 1) return '<1 min';
+    if (m < 60) return Math.round(m) + ' min';
+    const h = Math.floor(m / 60), r = Math.round(m % 60);
+    return r ? `${h} h ${r} min` : `${h} h`;
+}
 
-        const presets = {
-            gold: {
-                author: "Turkevich, J.",
-                year: "2023",
-                title: "Gold Nanoparticles Synthesis",
-                reqs: ["HAuCl4 (1 mM)", "Sodium citrate (38.8 mM)", "Deionized water", "Hot plate with magnetic stirring"],
-                time: "45 min",
-                steps: [
-                    { num: 1, action: "Solution preparation", details: "Dissolve HAuCl4 in deionized water and bring to a boil under constant magnetic stirring.", temp: "100 °C", time: "15 min" },
-                    { num: 2, action: "Adding reducing agent", details: "Quickly add the sodium citrate solution to the boiling chloroauric acid solution.", temp: "100 °C", time: "Instant" },
-                    { num: 3, action: "Reduction and color change", details: "Maintain stirring until observing a color change from pale yellow to deep wine red.", temp: "100 °C", time: "10-15 min" },
-                    { num: 4, action: "Cooling down", details: "Remove from the hot plate and allow the suspension to reach room temperature under gentle stirring.", temp: "Room temp", time: "15 min" }
-                ],
-                mermaid: `graph TD
-                    A[Prepare 1mM HAuCl4] -->|Heat to 100°C| B[Add Sodium Citrate]
-                    B -->|Constant stirring| C[Color change to wine red]
-                    C -->|Cool down| D[Au Nanoparticles ready]`
-            },
-            dna: {
-                author: "Doyle, J. J.",
-                year: "2022",
-                title: "Genomic DNA Extraction by CTAB Method",
-                reqs: ["CTAB Buffer", "Chloroform-Isoamyl Alcohol (24:1)", "Cold isopropanol", "EtOH 70%"],
-                time: "90 min",
-                steps: [
-                    { num: 1, action: "Sample homogenization", details: "Grind plant tissue in the presence of CTAB buffer preheated to 65 °C.", temp: "65 °C", time: "30 min" },
-                    { num: 2, action: "Chloroform purification", details: "Add an equal volume of Chloroform:Isoamyl alcohol, mix by inversion, and centrifuge at 12,000 rpm.", temp: "Room temp", time: "10 min" },
-                    { num: 3, action: "Nucleic acid precipitation", details: "Recover the upper aqueous phase and precipitate the DNA with cold isopropanol.", temp: "-20 °C", time: "20 min" },
-                    { num: 4, action: "Washing and resuspension", details: "Wash the pellet with 70% ethanol, air dry, and resuspend in TE buffer.", temp: "Room temp", time: "15 min" }
-                ],
-                mermaid: `graph TD
-                    A[Grind tissue with CTAB] -->|Incubate 65°C| B[Add Chloroform-Isoamyl]
-                    B -->|Centrifuge| C[Precipitate DNA with Isopropanol]
-                    C -->|Wash EtOH 70%| D[Resuspend in TE Buffer]`
-            },
-            pcr: {
-                author: "Mullis, K.",
-                year: "2021",
-                title: "Standard PCR Amplification Protocol",
-                reqs: ["Master Mix 2X", "Forward/Reverse Primers", "Template DNA", "Nuclease-free water"],
-                time: "120 min",
-                steps: [
-                    { num: 1, action: "Mix assembly", details: "Combine Master Mix, primers, DNA template, and water in a PCR tube on ice.", temp: "4 °C", time: "10 min" },
-                    { num: 2, action: "Initial denaturation", details: "Place in thermal cycler and perform initial polymerase activation.", temp: "95 °C", time: "3 min" },
-                    { num: 3, action: "Amplification cycles (35x)", details: "Denaturation (95°C, 30s) -> Annealing (Primer Tm, 30s) -> Extension (72°C, 1 min/kb).", temp: "Variable", time: "90 min" },
-                    { num: 4, action: "Final extension and storage", details: "Final extension to ensure complete products and hold at storage temperature.", temp: "4 °C", time: "Indefinite" }
-                ],
-                mermaid: `graph TD
-                    A[Prepare Master Mix & DNA] -->|Denaturation 95°C| B[Cycles: Denature -> Anneal -> Extend]
-                    B -->|35 repeats| C[Final Extension 72°C]
-                    C -->|Hold| D[PCR products ready]`
-            }
-        };
+/* =====================================================================
+   PDF extraction (keeps line structure, handles 2-column layouts)
+   ===================================================================== */
+async function extractPdf(pdf) {
+    const pages = [];
+    for (let p = 1; p <= pdf.numPages; p++) {
+        const page = await pdf.getPage(p);
+        const vp = page.getViewport({ scale: 1 });
+        const tc = await page.getTextContent();
+        const items = tc.items.filter(i => i.str && i.str.trim() !== '')
+            .map(i => ({ s: i.str, x: i.transform[4], y: i.transform[5], w: i.width, h: i.height || 10 }));
+        pages.push(pageToLines(items, vp.width));
+    }
+    // remove running headers/footers (same text on >= 3 pages) and bare page numbers
+    const norm = l => l.replace(/\d+/g, '#').trim();
+    const counts = {};
+    pages.forEach(pl => new Set(pl.map(norm)).forEach(n => counts[n] = (counts[n] || 0) + 1));
+    const clean = pages.map(pl => pl.filter(l => !/^\d{1,4}$/.test(l.trim()) && !(pages.length >= 4 && counts[norm(l)] >= 3 && l.length < 100)));
+    return { lines: clean.flat(), head: [...(clean[0] || []), ...(clean[1] || [])].join(' ') };
+}
 
-        // Robust & Reliable PDF Extractor
-        async function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+function rowsFromItems(items) {
+    const sorted = [...items].sort((a, b) => b.y - a.y || a.x - b.x);
+    const rows = [];
+    for (const it of sorted) {
+        const last = rows[rows.length - 1];
+        if (last && Math.abs(last.y - it.y) <= 2.5) last.items.push(it);
+        else rows.push({ y: it.y, items: [it] });
+    }
+    return rows.map(r => ({ y: r.y, items: r.items.sort((a, b) => a.x - b.x) }));
+}
+function rowToText(items) {
+    let out = '', prev = null;
+    for (const it of items) {
+        if (prev) {
+            const gap = it.x - (prev.x + prev.w);
+            if (gap > prev.h * 0.15 && !/\s$/.test(out) && !/^\s/.test(it.s)) out += ' ';
+        }
+        out += it.s; prev = it;
+    }
+    return out.replace(/\s+/g, ' ').trim();
+}
+function pageToLines(items, pageWidth) {
+    const mid = pageWidth / 2;
+    const rows = rowsFromItems(items);
+    let both = 0, covered = 0;
+    rows.forEach(r => {
+        const covers = r.items.some(i => i.x < mid + 6 && i.x + i.w > mid - 6);
+        const left = r.items.some(i => i.x + i.w <= mid - 6), right = r.items.some(i => i.x >= mid + 6);
+        if (covers) covered++; else if (left && right) both++;
+    });
+    const twoCol = both >= 6 && both > covered * 2;
+    if (!twoCol) return rows.map(r => rowToText(r.items)).filter(Boolean);
+    const L = items.filter(i => i.x + i.w / 2 < mid), R = items.filter(i => i.x + i.w / 2 >= mid);
+    return [...rowsFromItems(L), ...rowsFromItems(R)].map(r => rowToText(r.items)).filter(Boolean);
+}
 
-            const statusEl = document.getElementById('uploadStatus');
-            const labelEl = document.getElementById('uploadButtonLabel');
-            
-            statusEl.innerText = `Parsing ${file.name}...`;
-            statusEl.classList.remove('hidden');
+/* =====================================================================
+   Methods-section finder
+   ===================================================================== */
+const START_RE = /^(?:(?:\d+|[IVX]+)(?:\.\d+)*\.?\s+)?(?:materials?\s*(?:and|&)\s*methods?|methods?\s*(?:and|&)\s*materials?|methods?|methodology|experimental(?:\s+(?:section|procedures?|methods?|details?|design))?|materials\s+and\s+procedures?)\s*:?\s*$/i;
+const END_RE = /^(?:(?:\d+|[IVX]+)\.?\s+)?(?:results?(?:\s+(?:and|&)\s+discussion)?|discussion|conclusions?|references|bibliography|acknowledg(?:e)?ments?|data\s+availability(?:\s+statement)?|supplementary(?:\s+\w+)*|author\s+contributions?|funding|competing\s+interests?|declarations?.*|appendix.*)\s*:?\s*$/i;
 
-            if (file.name.endsWith('.pdf')) {
-                try {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                    
-                    let fullCombinedText = "";
-                    for (let i = 1; i <= pdf.numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const content = await page.getTextContent();
-                        fullCombinedText += "\n" + content.items.map(item => item.str).join(" ");
-                    }
+function findMethods(lines) {
+    let best = null;
+    lines.forEach((raw, i) => {
+        const line = raw.trim();
+        if (!START_RE.test(line)) return;
+        const num = (line.match(/^(\d+)\.?\s/) || [])[1];
+        const nextTop = num ? new RegExp('^' + (+num + 1) + '\\.?\\s+[A-Z][^.]{2,60}$') : null;
+        let end = lines.length;
+        for (let j = i + 1; j < lines.length; j++) {
+            const l = lines[j].trim();
+            if (END_RE.test(l) || (nextTop && nextTop.test(l))) { end = j; break; }
+        }
+        const text = lines.slice(i + 1, end).join('\n');
+        if (text.length >= 200 && (!best || text.length > best.length)) best = text;
+    });
+    return best ? best.slice(0, 20000) : null;
+}
 
-                    // Smart Keyword-based Section Finder
-                    let lowerText = fullCombinedText.toLowerCase();
-                    const markers = [
-                        "materials and methods", 
-                        "methodology", 
-                        "experimental section", 
-                        "materials and procedures", 
-                        "2. methods", 
-                        "2. material and methods",
-                        "methods and materials"
-                    ];
+/* =====================================================================
+   Metadata (APA fields) from the PDF
+   ===================================================================== */
+async function extractMeta(pdf, head) {
+    const m = { authors: '', year: '', title: '', journal: '', vol: '', doi: '' };
+    try {
+        const { info } = await pdf.getMetadata();
+        if (info && info.Title && info.Title.length > 12 && !/\.(pdf|docx?|tex|indd)$/i.test(info.Title) && !/^(untitled|microsoft word)/i.test(info.Title)) m.title = info.Title.trim();
+        if (info && info.Author && info.Author.length < 200) m.authors = info.Author.trim();
+    } catch (e) { /* metadata is optional */ }
+    const d = head.match(/\b10\.\d{4,9}\/[^\s"<>]+/);
+    if (d) m.doi = d[0].replace(/[.,;)\]]+$/, '');
+    const y = head.match(/(?:published|received|accepted|online|copyright|©)[^.]{0,50}?\b((?:19|20)\d{2})\b/i);
+    if (y) m.year = y[1];
+    return m;
+}
 
-                    let startIndex = -1;
+/* =====================================================================
+   Protocol engine (rule-based, English text)
+   ===================================================================== */
+const VERB_MAP = {
+    add: 'Add', added: 'Add', mix: 'Mix', mixed: 'Mix', combined: 'Combine', incubate: 'Incubate', incubated: 'Incubate',
+    centrifuge: 'Centrifuge', centrifuged: 'Centrifuge', spun: 'Spin', wash: 'Wash', washed: 'Wash', rinsed: 'Rinse',
+    dissolve: 'Dissolve', dissolved: 'Dissolve', heated: 'Heat', cooled: 'Cool', boiled: 'Boil', filtered: 'Filter',
+    stirred: 'Stir', homogenized: 'Homogenize', homogenised: 'Homogenize', ground: 'Grind', grind: 'Grind',
+    extracted: 'Extract', precipitated: 'Precipitate', resuspended: 'Resuspend', resuspend: 'Resuspend',
+    amplified: 'Amplify', amplification: 'Amplify', collected: 'Collect', harvested: 'Harvest', sampled: 'Sample',
+    diluted: 'Dilute', prepared: 'Prepare', transferred: 'Transfer', transfer: 'Transfer', stored: 'Store',
+    measured: 'Measure', sequenced: 'Sequence', purified: 'Purify', eluted: 'Elute', digested: 'Digest', lysed: 'Lyse',
+    quantified: 'Quantify', sonicated: 'Sonicate', vortexed: 'Vortex', pipetted: 'Pipette', seeded: 'Seed',
+    cultured: 'Culture', grown: 'Grow', grew: 'Grow', treated: 'Treat', stained: 'Stain', fixed: 'Fix', dried: 'Dry',
+    sterilized: 'Sterilize', sterilised: 'Sterilize', autoclaved: 'Autoclave', brought: 'Bring', placed: 'Place',
+    removed: 'Remove', discarded: 'Discard', decanted: 'Decant', aspirated: 'Aspirate', recovered: 'Recover',
+    dispensed: 'Dispense', loaded: 'Load', separated: 'Separate', denatured: 'Denature', annealed: 'Anneal',
+    extended: 'Extend', held: 'Hold', cleaned: 'Clean', pelleted: 'Pellet', kept: 'Keep', maintained: 'Maintain',
+    adjusted: 'Adjust', synthesized: 'Synthesize', synthesised: 'Synthesize', reduced: 'Reduce', quenched: 'Quench',
+    neutralized: 'Neutralize', lyophilized: 'Lyophilize', frozen: 'Freeze', thawed: 'Thaw', immersed: 'Immerse',
+    coated: 'Coat', deposited: 'Deposit', injected: 'Inject', scanned: 'Scan', imaged: 'Image', weighed: 'Weigh',
+    supplemented: 'Supplement', inoculated: 'Inoculate', plated: 'Plate', ligated: 'Ligate', transformed: 'Transform',
+    transfected: 'Transfect', blocked: 'Block', hybridized: 'Hybridize', assembled: 'Assemble', trimmed: 'Trim',
+    normalized: 'Normalize', equilibrated: 'Equilibrate', aliquoted: 'Aliquot', sealed: 'Seal', mounted: 'Mount',
+    dehydrated: 'Dehydrate', embedded: 'Embed', sectioned: 'Section', fragmented: 'Fragment', depleted: 'Deplete',
+    enriched: 'Enrich', pooled: 'Pool'
+};
+const VERB_ALT = Object.keys(VERB_MAP).sort((a, b) => b.length - a.length).join('|');
+const VERB_RE = new RegExp('\\b(?:' + VERB_ALT + ')\\b', 'i');
+const SPLIT_RE = new RegExp(
+    ';\\s+|,\\s*(?:and\\s+)?then\\s+|\\s+and\\s+then\\s+|,\\s+and\\s+(?=the\\b)' +
+    '|,\\s+(?:and\\s+)?(?=(?:air\\s+|\\w+ly\\s+)?(?:' + VERB_ALT + ')\\b)' +
+    '|\\s+and\\s+(?=(?:\\w+ly\\s+)?(?:' + VERB_ALT + ')\\b)', 'i');
 
-                    // Search for markers avoiding author contribution lists
-                    for (let marker of markers) {
-                        let idx = lowerText.indexOf(marker);
-                        while (idx !== -1) {
-                            let snippet = lowerText.substring(Math.max(0, idx - 40), Math.min(lowerText.length, idx + 80));
-                            if (!snippet.includes("author") && !snippet.includes("contribution") && !snippet.includes("credit")) {
-                                startIndex = idx;
-                                break;
-                            }
-                            idx = lowerText.indexOf(marker, idx + 1);
-                        }
-                        if (startIndex !== -1) break;
-                    }
+const TEMP_RE = /(-?\d+(?:\.\d+)?)\s*(?:[°º˚◦]\s*C|℃)/g;
+const TIME_RE = /(\d+(?:\.\d+)?)(?:\s*[–-]\s*(\d+(?:\.\d+)?))?\s*(hours?|hrs?|h|minutes?|mins?|min|seconds?|secs?|s|days?)\b/g;
+const CYC_RE = /(\d+)\s*(?:cycles|repeats|repetitions)\b|(?:repeated|for)\s+(\d+)\s+(?:times|cycles)\b/i;
+const QTY_RE = /(\d+(?:[.,]\d+)?\s*(?:(?:[µμumn]?[lL]|[µμmn]?M|[µμmnk]?g)(?![A-Za-z])|%(?:\s*\(?[vw]\/[vw]\)?)?))(?=\s+(?:of\s+)?([^.,;:()]{1,60}))/g;
+const AMT_PREFIX = new RegExp('^\\s*((?:(?:\\d[\\d.,]*|(?:one|two|three|four|five|six|seven|eight|nine|ten|twenty|thirty|forty|fifty|hundred))\\s*(?:[µμumnk]?[lLg]|[µμmn]?M|%)(?![A-Za-z])\\s*(?:of\\s+)?)+)', 'i');
+const LEAD_RE = /^[\s,]*(?:(?:then|next|finally|subsequently|afterwards|first|also|the|a|an|of|to|in|into|with|and|each|all|every|this|that)\b[\s,]*)+/i;
+const OBJ_STOP = /^(?:in|at|for|with|to|into|by|from|using|on|under|and|or|was|were|is|are|until|after|before|which|that|containing|per|then|as|within|via|over|through|between|followed|solution|volumes?)$/i;
+const CHEM_SKIP = new Set(['DNA', 'RNA', 'PCR', 'USA', 'UK', 'EU', 'UV', 'OD', 'SD', 'SE', 'ANOVA', 'NCBI', 'BLAST', 'FASTQ', 'FASTA', 'OTU', 'ASV', 'GC', 'MS', 'ICP', 'HPLC', 'NMR', 'SEM', 'TEM', 'XRD', 'FTIR', 'PCA', 'RT', 'II', 'III', 'IV', 'FIG']);
+const REAGENT_RE = /\b(?:(?:sodium|potassium|calcium|magnesium|ammonium|cold|ice-cold|absolute|deionized|deionised|distilled|nuclease-free|ultrapure|sterile)\s+)*(?:ethanol|methanol|isopropanol|isopropyl alcohol|chloroform|phenol|acetone|glycerol|agarose|citrate|chloride|acetate|hydroxide|water|buffer|primers?|polymerase|master mix|ethidium bromide|proteinase K|RNase A|lysozyme|trypsin|ampicillin|kanamycin|DMSO|PBS|Tris|medium|media|ligase|dNTPs?|liquid nitrogen)\b/gi;
+const EQUIP_RE = /\b(?:hot plate|magnetic stirrer|stir plate|thermocycler|thermal cycler|microcentrifuge|ultracentrifuge|centrifuge|incubator|water bath|heat block|vortex mixer|vortex|spectrophotometer|NanoDrop|Qubit|Bioanalyzer|sonicator|autoclave|microscope|shaker|fume hood|freezer|refrigerator|pH meter|sequencer|Illumina|HPLC|gel electrophoresis|electrophoresis|lyophilizer|rotary evaporator|pipettes?|syringe filter|filter paper)\b/gi;
+const QTY_STOP = /^(?:at|for|in|to|into|and|or|was|were|is|are|with|by|from|on|under|until|then|per|that|which|containing|using|followed|each|every|solution|volumes?)$/i;
+const SUBHEAD_RE = /^(?:\d+(?:\.\d+)+\.?|\d+\.)\s+[A-Z][A-Za-z]{2,}[^.!?;:]{0,78}$/;
 
-                    // Fallback to first occurrence if strict check didn't match
-                    if (startIndex === -1) {
-                        for (let marker of markers) {
-                            let idx = lowerText.indexOf(marker);
-                            if (idx !== -1) {
-                                startIndex = idx;
-                                break;
-                            }
-                        }
-                    }
+function cleanText(t) {
+    return t
+        .replace(/[\u2212\u2012]/g, '-').replace(/[\u00a0\u2009\u202f]/g, ' ')
+        .replace(/\s*\[(?:\d+(?:\s*[,–-]\s*\d+)*)\]/g, '')
+        .replace(/\s*\((?:[A-Z][\w\-']+(?:\s+(?:et al\.?|and|&)\s*[A-Z]?[\w\-']*)?,?\s*(?:19|20)\d\d[a-z]?(?:\s*[;,]\s*)?)+\)/g, '')
+        .replace(/\b(was|were)\s+then\s+/gi, '$1 ')
+        .replace(/\s+/g, ' ').trim();
+}
+function toBlocks(raw) {
+    const blocks = []; let phase = '', buf = [];
+    const flush = () => { if (buf.length) blocks.push({ phase, text: buf.join(' ') }); buf = []; };
+    for (let ln of raw.replace(/\r/g, '').split('\n')) {
+        ln = ln.trim();
+        if (!ln) { flush(); continue; }
+        if (SUBHEAD_RE.test(ln)) { flush(); phase = ln.replace(/^\d+(?:\.\d+)*\.?\s+/, ''); continue; }
+        if (buf.length && /-$/.test(buf[buf.length - 1]) && /^[a-z]/.test(ln)) buf[buf.length - 1] = buf[buf.length - 1].slice(0, -1) + ln;
+        else buf.push(ln);
+    }
+    flush();
+    return blocks;
+}
+function splitSentences(t) {
+    return t.replace(/\b(e\.g|i\.e|et al|vs|approx|Fig|Figs|Tab|ca|cf|Inc|Ltd|Co|Corp|Sci|Biol|Chem|Mol)\./gi, m => m.replace('.', '\u0002'))
+        .replace(/([a-z\)\]\d%°])\.\s+(?=[A-Z])/g, '$1.\u0001')
+        .split('\u0001').map(s => s.replace(/\u0002/g, '.').trim()).filter(Boolean);
+}
+function takeWords(str, max) {
+    const out = [];
+    for (const w of str.split(/\s+/)) {
+        if (!w) continue;
+        const bare = w.replace(/[,;:)]+$/, '');
+        if (OBJ_STOP.test(bare) || /^\(/.test(w)) break;
+        out.push(bare);
+        if (out.length >= max || /[,;:)]$/.test(w)) break;
+    }
+    return out.join(' ');
+}
+function makeTitle(frag, m, inherited) {
+    const label = VERB_MAP[m[0].toLowerCase()];
+    const pre = frag.slice(0, m.index);
+    const pm = pre.match(/^(.*?)\b(?:was|were|is|are|been|be)\b/i);
+    let obj = '', subject = inherited || '';
+    if (pm && pm[1].trim()) { obj = pm[1]; subject = ''; }
+    else if (!pre.trim() && inherited) obj = inherited;
+    else obj = frag.slice(m.index + m[0].length);
+    obj = takeWords(obj.replace(LEAD_RE, '').replace(AMT_PREFIX, '').replace(LEAD_RE, ''), 4);
+    if (pm && pm[1].trim()) subject = obj;
+    return { title: obj ? `${label} ${obj}` : label, subject, bare: !obj };
+}
+function addReagent(map, name, display) {
+    const key = name.toLowerCase().trim();
+    if (!key) return;
+    for (const k of [...map.keys()]) {
+        if (k.includes(key)) return;
+        if (key.includes(k)) map.delete(k);
+    }
+    map.set(key, display);
+}
+function collectItems(text, reag, equip) {
+    const names = [];
+    for (const m of text.matchAll(QTY_RE)) {
+        const amt = m[1].trim();
+        if (/g$/i.test(amt) && /,|\d{4,}/.test(amt)) continue;           // centrifuge speed, not mass
+        let rest = m[2] || '', shown = amt;
+        const pre = rest.match(AMT_PREFIX);
+        if (pre) { shown = pre[1].replace(/\s*of\s*$/i, '').trim(); rest = rest.replace(AMT_PREFIX, ''); }
+        const words = [];
+        for (const w of rest.trim().split(/\s+/)) {
+            const lw = w.toLowerCase();
+            if (!w || QTY_STOP.test(w) && words.length === 0 && /^(?:each|every)$/i.test(w)) continue;
+            if (QTY_STOP.test(w) || VERB_MAP[lw] || /^pre\w+ed$/.test(lw)) break;
+            if (words.length === 0 && /^\d+$/.test(w)) break;
+            words.push(w.replace(/[;:]$/, ''));
+            if (words.length >= 3) break;
+        }
+        if (!words.length) continue;
+        const name = words.join(' ');
+        addReagent(reag, name, `${shown} ${name}`);
+        names.push({ name });
+    }
+    for (const t of text.match(/\b[A-Z][A-Za-z0-9]*\b/g) || []) {
+        if (t.length < 3 || CHEM_SKIP.has(t) || /^(OD|A)\d+$/.test(t)) continue;
+        const caps = (t.match(/[A-Z]/g) || []).length;
+        if (caps >= 2 || /\d/.test(t) && caps >= 1 && /[A-Z][a-z]?[A-Z0-9]/.test(t)) { addReagent(reag, t, t); names.push({ name: t }); }
+    }
+    for (const m of text.matchAll(REAGENT_RE)) { addReagent(reag, m[0], m[0].toLowerCase()); names.push({ name: m[0] }); }
+    for (const m of text.matchAll(EQUIP_RE)) equip.add(cap(m[0].toLowerCase()));
+    return names;
+}
+function getParams(f) {
+    const temps = [];
+    for (const m of f.matchAll(TEMP_RE)) temps.push(`${m[1]} °C`);
+    if (/room temperature|ambient temperature|\bRT\b/i.test(f)) temps.push('Room temp');
+    if (/\bon ice\b|ice-cold|ice cold/i.test(f)) temps.push('On ice');
+    const times = [];
+    for (const m of f.matchAll(TIME_RE)) {
+        const a = +m[1], b = m[2] ? +m[2] : null, u = m[3];
+        const unit = /^h/.test(u) ? 'h' : /^m/.test(u) ? 'min' : /^s/.test(u) ? 's' : 'days';
+        const factor = { h: 60, min: 1, s: 1 / 60, days: 1440 }[unit];
+        times.push({ label: `${m[1]}${m[2] ? '–' + m[2] : ''} ${unit}`, min: (b ? (a + b) / 2 : a) * factor });
+    }
+    if (/overnight/i.test(f)) times.push({ label: 'Overnight', min: 720 });
+    let speed = '';
+    const g = f.match(/(\d[\d,]*)\s*(?:×|x)\s*g\b/) || f.match(/(\d{1,3}(?:,\d{3})+|\d{4,6})\s*g\b/);
+    const r = f.match(/(\d[\d,]*)\s*rpm\b/i);
+    if (g) speed = `${g[1]} × g`; else if (r) speed = `${r[1]} rpm`;
+    const c = f.match(CYC_RE);
+    const cycles = c ? +(c[1] || c[2]) : 0;
+    return { temps: [...new Set(temps)], times, speed, cycles, any: !!(temps.length || times.length || speed || cycles) };
+}
+function mergeInto(s, p, frag) {
+    p.temps.forEach(t => { if (!s.temps.includes(t)) s.temps.push(t); });
+    s.times.push(...p.times); s.speed = s.speed || p.speed; s.cycles = s.cycles || p.cycles;
+    s.details += ' ' + frag.trim();
+}
 
-                    let methodologyText = "";
-                    if (startIndex !== -1) {
-                        methodologyText = fullCombinedText.substring(startIndex, startIndex + 5000);
-                        
-                        // Stop before results or references if present
-                        let stopMarkers = ["3. results", "results", "discussion", "references"];
-                        for (let stop of stopMarkers) {
-                            let stopIdx = methodologyText.toLowerCase().indexOf(stop);
-                            if (stopIdx > 300) {
-                                methodologyText = methodologyText.substring(0, stopIdx);
-                                break;
-                            }
-                        }
-                    } else {
-                        // Absolute fallback if no marker matches
-                        methodologyText = fullCombinedText.substring(0, 5000);
-                    }
-
-                    document.getElementById('paperText').value = methodologyText.trim();
-
-                    // APA Metadata Auto-fill
-                    document.getElementById('paperAuthor').value = "Author, A. et al.";
-                    document.getElementById('paperYear').value = new Date().getFullYear();
-
-                    statusEl.innerText = `Successfully loaded: ${file.name}`;
-                    labelEl.innerText = file.name;
-                } catch (err) {
-                    console.error(err);
-                    alert("Error reading PDF. Please paste text directly.");
-                    statusEl.innerText = "Error parsing PDF";
+function buildProtocol(raw) {
+    const steps = [], reag = new Map(), equip = new Set();
+    for (const { phase, text } of toBlocks(raw)) {
+        for (const sent of splitSentences(cleanText(text))) {
+            if (!VERB_RE.test(sent)) continue;
+            let subject = '';
+            for (const frag of sent.split(SPLIT_RE).map(f => f && f.trim()).filter(Boolean)) {
+                const vm = frag.match(VERB_RE);
+                const p = getParams(frag);
+                if (!vm) {
+                    if (steps.length && p.any) { mergeInto(steps[steps.length - 1], p, frag); collectItems(frag, reag, equip); }
+                    continue;
                 }
-            } else {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('paperText').value = e.target.result;
-                    document.getElementById('paperAuthor').value = "Author, A.";
-                    document.getElementById('paperYear').value = new Date().getFullYear();
-                    statusEl.innerText = `Loaded: ${file.name}`;
-                    labelEl.innerText = file.name;
-                };
-                reader.readAsText(file);
+                if (frag.split(/\s+/).length < 3 || steps.length >= 40) continue;
+                const names = collectItems(frag, reag, equip);
+                const t = makeTitle(frag, vm, subject);
+                subject = t.subject || subject;
+                const title = t.bare && names.length ? `${t.title} – ${names[0].name}` : t.title;
+                steps.push({ title, details: frag, phase, temps: p.temps, times: p.times, speed: p.speed, cycles: p.cycles });
             }
         }
+    }
+    steps.forEach((s, i) => { s.num = i + 1; s.min = s.times.reduce((a, t) => a + t.min, 0) * (s.cycles || 1); });
+    return { steps, reagents: [...reag.values()], equipment: [...equip], totalMin: steps.reduce((a, s) => a + s.min, 0) };
+}
 
-        function loadPreset(key) {
-            const data = presets[key];
-            if (!data) return;
-
-            document.getElementById('paperAuthor').value = data.author;
-            document.getElementById('paperYear').value = data.year;
-
-            const paperTextValue = `Protocol: ${data.title}\nReagents: ${data.reqs.join(', ')}`;
-            document.getElementById('paperText').value = paperTextValue;
-            
-            document.getElementById('statSteps').innerText = data.steps.length;
-            document.getElementById('statReqs').innerText = data.reqs.length;
-            document.getElementById('statTime').innerText = data.time;
-
-            const container = document.getElementById('mermaidContainer');
-            container.innerHTML = `<div class="mermaid">${data.mermaid}</div>`;
-            mermaid.run();
-
-            const stepsHtml = data.steps.map(s => `
-                <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 flex gap-4 items-start">
-                    <div class="bg-cyan-500/10 text-cyan-400 font-bold px-3 py-1.5 rounded-lg border border-cyan-500/20 text-sm">
-                        ${s.num}
-                    </div>
-                    <div class="space-y-1 flex-1">
-                        <div class="flex items-center justify-between">
-                            <h4 class="text-sm font-semibold text-slate-200">${s.action}</h4>
-                            <div class="flex gap-2 text-[10px]">
-                                <span class="bg-slate-800 px-2 py-0.5 rounded text-cyan-300">🌡️ ${s.temp}</span>
-                                <span class="bg-slate-800 px-2 py-0.5 rounded text-emerald-300">⏱️ ${s.time}</span>
-                            </div>
-                        </div>
-                        <p class="text-xs text-slate-400">${s.details}</p>
-                    </div>
+/* =====================================================================
+   Rendering: flowchart + step list
+   ===================================================================== */
+const mq = s => String(s).replace(/"/g, "'").replace(/[#<>]/g, '').replace(/&/g, 'and');
+function stepMeta(s) {
+    return [s.temps.slice(0, 3).join(' → '), [...new Set(s.times.map(t => t.label))].slice(0, 3).join(', '), s.speed, s.cycles > 1 ? `${s.cycles}×` : ''].filter(Boolean);
+}
+function buildMermaid(steps) {
+    let code = 'graph TD\n  S(["Start"])\n';
+    steps.forEach((s, i) => {
+        const title = s.title.length > 45 ? s.title.slice(0, 44) + '…' : s.title;
+        const meta = stepMeta(s).join(' · ');
+        code += `  N${i}["${mq(s.num + '. ' + title)}${meta ? '<br/>' + mq(meta) : ''}"]\n`;
+    });
+    code += '  E(["End"])\n  S --> ' + steps.map((_, i) => 'N' + i).join(' --> ') + ' --> E\n';
+    code += '  classDef step fill:#0f172a,stroke:#22d3ee,color:#e2e8f0\n  classDef term fill:#0e7490,stroke:#22d3ee,color:#ffffff\n';
+    code += '  class ' + steps.map((_, i) => 'N' + i).join(',') + ' step\n  class S,E term\n';
+    return code;
+}
+let mermaidCounter = 0;
+async function renderMermaid(code) {
+    const c = $('mermaidContainer');
+    try {
+        const { svg } = await mermaid.render('mm' + (++mermaidCounter), code);
+        c.innerHTML = svg;
+    } catch (e) {
+        console.error(e);
+        c.innerHTML = '<p class="text-xs text-red-400">Could not render the flowchart.</p>';
+    }
+}
+function renderStepsHtml(p) {
+    const chip = (x, cls) => `<span class="bg-slate-800 px-2 py-0.5 rounded ${cls}">${esc(x)}</span>`;
+    let html = `<div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 space-y-3">
+        <div><h4 class="text-sm font-semibold text-slate-200 mb-2">Reagents &amp; materials</h4>
+        <div class="flex flex-wrap gap-2 text-[11px]">${p.reagents.map(r => chip(r, 'text-emerald-300')).join('') || '<span class="text-xs text-slate-500">None detected</span>'}</div></div>
+        <div><h4 class="text-sm font-semibold text-slate-200 mb-2">Equipment</h4>
+        <div class="flex flex-wrap gap-2 text-[11px]">${p.equipment.map(r => chip(r, 'text-purple-300')).join('') || '<span class="text-xs text-slate-500">None detected</span>'}</div></div>
+    </div>`;
+    html += p.steps.map(s => {
+        const chips = [];
+        if (s.temps.length) chips.push(chip('🌡️ ' + s.temps.slice(0, 3).join(' → '), 'text-cyan-300'));
+        if (s.times.length) chips.push(chip('⏱️ ' + [...new Set(s.times.map(t => t.label))].slice(0, 3).join(', '), 'text-emerald-300'));
+        if (s.speed) chips.push(chip('⚙️ ' + s.speed, 'text-purple-300'));
+        if (s.cycles > 1) chips.push(chip('🔁 ' + s.cycles + '×', 'text-amber-300'));
+        return `<div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 flex gap-4 items-start">
+            <div class="bg-cyan-500/10 text-cyan-400 font-bold px-3 py-1.5 rounded-lg border border-cyan-500/20 text-sm">${s.num}</div>
+            <div class="space-y-1 flex-1">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h4 class="text-sm font-semibold text-slate-200">${esc(s.title)}</h4>
+                    <div class="flex flex-wrap gap-2 text-[10px]">${chips.join('')}</div>
                 </div>
-            `).join('');
+                ${s.phase ? `<p class="text-[10px] text-cyan-500/70">${esc(s.phase)}</p>` : ''}
+                <p class="text-xs text-slate-400">${esc(s.details)}</p>
+            </div></div>`;
+    }).join('');
+    return html;
+}
 
-            document.getElementById('tabSteps').innerHTML = stepsHtml;
+/* =====================================================================
+   Main actions
+   ===================================================================== */
+let currentProtocol = null;
 
-            const apaTitle = `${data.author} (${data.year}). _${data.title}_.`;
-            currentActiveData = {
-                apaTitle: apaTitle,
-                text: paperTextValue,
-                stepsCount: data.steps.length,
-                reqsCount: data.reqs.length,
-                time: data.time,
-                mermaid: data.mermaid,
-                stepsHtml: stepsHtml
-            };
+async function generateProtocol() {
+    const raw = $('paperText').value.trim();
+    if (!raw) { toast('Paste or upload a methodology first.'); return; }
+    const p = buildProtocol(raw);
+    if (!p.steps.length) {
+        $('statSteps').innerText = '0'; $('statReqs').innerText = '0'; $('statTime').innerText = 'n/a';
+        $('mermaidContainer').innerHTML = '<p class="text-xs text-amber-400 text-center">No procedural steps were detected. Check that the text is the Methods section (in English) and describes actions like "was added", "were centrifuged"…</p>';
+        $('tabSteps').innerHTML = '<p class="text-xs text-amber-400 text-center py-12">No procedural steps detected.</p>';
+        currentProtocol = null; switchTab('flowchart');
+        return;
+    }
+    p.mermaid = buildMermaid(p.steps);
+    currentProtocol = p;
+    $('statSteps').innerText = p.steps.length;
+    $('statReqs').innerText = p.reagents.length + p.equipment.length;
+    $('statTime').innerText = fmtMin(p.totalMin);
+    $('tabSteps').innerHTML = renderStepsHtml(p);
+    switchTab('flowchart');
+    await renderMermaid(p.mermaid);
+    logUsage(p);   // history stores ONLY the APA reference + stats, never the paper text
+}
 
-            switchTab('flowchart');
+function loadPreset(key) {
+    const d = PRESETS[key];
+    ['paperAuthor', 'paperYear', 'paperTitle', 'paperJournal', 'paperVol', 'paperDoi'].forEach(id => $(id).value = '');
+    $('paperTitle').value = d.title;
+    $('paperText').value = d.text;
+    setStatus('Example loaded (no real reference attached).', 'info');
+    generateProtocol();
+}
+
+async function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    setStatus(`Reading ${file.name}…`, 'info');
+    try {
+        let lines, meta = { authors: '', year: '', title: '', journal: '', vol: '', doi: '' };
+        if (/\.pdf$/i.test(file.name)) {
+            const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+            const ex = await extractPdf(pdf);
+            lines = ex.lines;
+            meta = await extractMeta(pdf, ex.head);
+        } else {
+            lines = (await file.text()).split(/\r?\n/);
         }
-
-        function analizarPaper() {
-            const text = document.getElementById('paperText').value.trim();
-            if (!text) {
-                alert('Please enter or paste the text of a paper.');
-                return;
-            }
-
-            const author = document.getElementById('paperAuthor').value.trim() || "Author, A.";
-            const year = document.getElementById('paperYear').value.trim() || "2026";
-            
-            document.getElementById('statSteps').innerText = "4";
-            document.getElementById('statReqs').innerText = "5";
-            document.getElementById('statTime').innerText = "45 min";
-
-            const mermaidCode = `graph TD
-                A[Extracted Methodology] --> B[Parse Experimental Parameters]
-                B --> C[Generate Protocol & Flowchart]`;
-
-            const container = document.getElementById('mermaidContainer');
-            container.innerHTML = `<div class="mermaid">${mermaidCode}</div>`;
-            mermaid.run();
-
-            const stepsHtml = `
-                <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 flex gap-4 items-start">
-                    <div class="bg-cyan-500/10 text-cyan-400 font-bold px-3 py-1.5 rounded-lg border border-cyan-500/20 text-sm">1</div>
-                    <div class="space-y-1 flex-1">
-                        <h4 class="text-sm font-semibold text-slate-200">Materials & Reagents</h4>
-                        <p class="text-xs text-slate-400">Extracted chemical compounds, primers, or biological components.</p>
-                    </div>
-                </div>
-                <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 flex gap-4 items-start">
-                    <div class="bg-cyan-500/10 text-cyan-400 font-bold px-3 py-1.5 rounded-lg border border-cyan-500/20 text-sm">2</div>
-                    <div class="space-y-1 flex-1">
-                        <h4 class="text-sm font-semibold text-slate-200">Operational Protocol</h4>
-                        <p class="text-xs text-slate-400">Stepwise execution workflow structured successfully.</p>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('tabSteps').innerHTML = stepsHtml;
-
-            const apaTitle = `${author} (${year}). Scientific Methodology Extraction Protocol.`;
-
-            currentActiveData = {
-                apaTitle: apaTitle,
-                text: text,
-                stepsCount: 4,
-                reqsCount: 5,
-                time: "45 min",
-                mermaid: mermaidCode,
-                stepsHtml: stepsHtml
-            };
-
-            switchTab('flowchart');
+        let methods = findMethods(lines);
+        let kind = 'ok', msg;
+        if (methods) {
+            msg = `Methods section found (${methods.length.toLocaleString()} characters).`;
+        } else if (!/\.pdf$/i.test(file.name)) {
+            methods = lines.join('\n').slice(0, 20000);
+            kind = 'warn'; msg = 'No "Methods" heading found; using the full text file.';
+        } else {
+            methods = '';
+            kind = 'warn'; msg = 'Could not locate a Methods section. Paste it manually into the box below.';
         }
+        $('paperText').value = methods;
+        $('paperAuthor').value = meta.authors; $('paperYear').value = meta.year; $('paperTitle').value = meta.title;
+        $('paperJournal').value = meta.journal; $('paperVol').value = meta.vol; $('paperDoi').value = meta.doi;
+        $('uploadButtonLabel').innerText = file.name;
+        setStatus(msg + ' Review the APA fields.', kind);
+        if (methods) generateProtocol();
+    } catch (err) {
+        console.error(err);
+        setStatus('Could not read the file. Paste the Methods text manually.', 'err');
+    }
+    event.target.value = '';   // allows re-uploading the same file
+}
 
-        // LocalStorage Management
-        function getSavedPapers() {
-            try {
-                return JSON.parse(localStorage.getItem('scien_saved_papers_apa') || '[]');
-            } catch (e) {
-                return [];
-            }
+function switchTab(tab) {
+    const on = 'px-4 py-2 text-xs font-medium rounded-lg bg-cyan-500/10 text-cyan-400 transition flex items-center gap-2';
+    const off = 'px-4 py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center gap-2';
+    const fc = tab === 'flowchart';
+    $('tabFlowchartBtn').className = fc ? on : off;
+    $('tabStepsBtn').className = fc ? off : on;
+    $('tabFlowchart').classList.toggle('hidden', !fc);
+    $('tabSteps').classList.toggle('hidden', fc);
+}
+
+/* =====================================================================
+   APA formatting + usage history (localStorage: references and stats only)
+   ===================================================================== */
+function getFields() {
+    return { authors: $('paperAuthor').value.trim(), year: $('paperYear').value.trim(), title: $('paperTitle').value.trim(),
+             journal: $('paperJournal').value.trim(), vol: $('paperVol').value.trim(), doi: $('paperDoi').value.trim() };
+}
+function buildApa(f, html) {
+    const E = html ? esc : x => x;
+    const I = html ? x => `<i>${esc(x)}</i>` : x => x;
+    const dot = s => /[.?!]$/.test(s) ? s : s + '.';
+    const year = f.year || 'n.d.';
+    const title = f.title || 'Untitled paper';
+    let out = f.authors ? `${E(dot(f.authors))} (${E(year)}). ${E(dot(title))}` : `${E(dot(title))} (${E(year)}).`;
+    if (f.journal) {
+        out += ' ' + I(f.journal);
+        if (f.vol) {
+            const m = f.vol.match(/^(\d+)(.*)$/);
+            out += ', ' + (m ? (html ? `<i>${esc(m[1])}</i>${esc(m[2])}` : f.vol) : E(f.vol));
         }
+        out += '.';
+    }
+    if (f.doi) {
+        const d = f.doi.replace(/^(?:https?:\/\/(?:dx\.)?doi\.org\/|doi:\s*)/i, '');
+        out += ' ' + E('https://doi.org/' + d);
+    }
+    return out;
+}
+const HKEY = 'sciensearch_history_apa';
+function getHistory() { try { return JSON.parse(localStorage.getItem(HKEY) || '[]'); } catch (e) { return []; } }
+function setHistory(h) { try { localStorage.setItem(HKEY, JSON.stringify(h)); } catch (e) { toast('Could not save history (storage blocked).'); } }
 
-        function saveCurrentPaper() {
-            if (!currentActiveData.text && document.getElementById('paperText').value.trim() === '') {
-                alert('Please load or analyze a paper before saving.');
-                return;
-            }
-            
-            if (!currentActiveData.text || document.getElementById('paperText').value !== currentActiveData.text) {
-                analizarPaper();
-            }
+function logUsage(p) {
+    const f = getFields();
+    const entry = { id: Date.now(), date: new Date().toISOString(), ...f, steps: p.steps.length, items: p.reagents.length + p.equipment.length, time: fmtMin(p.totalMin) };
+    const h = getHistory();
+    const sig = e => `${e.authors}|${e.year}|${e.title}`;
+    if (h.length && sig(h[0]) === sig(entry) && h[0].steps === entry.steps) h[0] = entry;
+    else h.unshift(entry);
+    setHistory(h.slice(0, 50));
+    renderHistory();
+}
+function renderHistory() {
+    const h = getHistory();
+    $('savedCount').innerText = `${h.length} ${h.length === 1 ? 'entry' : 'entries'}`;
+    $('savedList').innerHTML = h.length ? h.map((e, i) => `
+        <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 flex items-start justify-between gap-2 hover:border-cyan-500/50 transition">
+            <div class="flex-1 min-w-0">
+                <p class="text-xs text-slate-200 break-words">${buildApa(e, true)}</p>
+                <p class="text-[10px] text-slate-500 mt-1">${esc(new Date(e.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }))} • ${e.steps} steps • ${esc(e.time)}</p>
+            </div>
+            <div class="flex gap-1">
+                <button onclick="copyApaAt(${i})" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-cyan-400" title="Copy APA"><i data-lucide="quote" class="w-3.5 h-3.5"></i></button>
+                <button onclick="deleteAt(${i})" class="p-1.5 bg-slate-800 hover:bg-red-900/40 rounded text-red-400" title="Delete"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+            </div>
+        </div>`).join('')
+        : '<p class="text-xs text-slate-500 italic text-center py-4">No usage yet. Each protocol you generate is logged here as an APA reference.</p>';
+    lucide.createIcons();
+}
+const copy = (text, msg) => navigator.clipboard.writeText(text).then(() => toast(msg), () => toast('Could not copy.'));
+function copyApaAt(i) { copy(buildApa(getHistory()[i], false), 'APA reference copied'); }
+function copyCurrentApa() { copy(buildApa(getFields(), false), 'APA reference copied'); }
+function deleteAt(i) { const h = getHistory(); h.splice(i, 1); setHistory(h); renderHistory(); }
+function clearHistory() { if (getHistory().length && confirm('Delete the whole usage history?')) { setHistory([]); renderHistory(); } }
+function copyBibliography() {
+    const refs = [...new Set(getHistory().map(e => buildApa(e, false)))].sort((a, b) => a.localeCompare(b));
+    if (!refs.length) { toast('History is empty.'); return; }
+    copy(refs.join('\n\n'), 'References copied (alphabetical)');
+}
 
-            let saved = getSavedPapers();
-            saved.unshift(currentActiveData);
-            if (saved.length > 15) saved.pop();
+/* =====================================================================
+   Export current protocol
+   ===================================================================== */
+function protocolText() {
+    if (!currentProtocol) return '';
+    const p = currentProtocol, f = getFields();
+    let t = `# Protocol\n\nSource: ${buildApa(f, false)}\n\n## Reagents & materials\n${p.reagents.map(r => '- ' + r).join('\n') || '- n/a'}\n\n## Equipment\n${p.equipment.map(r => '- ' + r).join('\n') || '- n/a'}\n\n## Procedure\n`;
+    p.steps.forEach(s => { const m = stepMeta(s).join(' | '); t += `${s.num}. **${s.title}**${m ? ' [' + m + ']' : ''}\n   ${s.details}\n`; });
+    return t + `\nEstimated time: ${fmtMin(p.totalMin)}\n`;
+}
+function copyProtocol() { const t = protocolText(); t ? copy(t, 'Protocol copied') : toast('Generate a protocol first.'); }
+function downloadProtocol() {
+    const t = protocolText();
+    if (!t) { toast('Generate a protocol first.'); return; }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([t], { type: 'text/markdown' }));
+    a.download = 'protocol.md'; a.click(); URL.revokeObjectURL(a.href);
+}
 
-            localStorage.setItem('scien_saved_papers_apa', JSON.stringify(saved));
-            renderHistory();
-            alert('Paper saved successfully in APA format!');
-        }
+/* =====================================================================
+   Example methodologies (generic text, no real citation attached)
+   ===================================================================== */
+const PRESETS = {
+    gold: { title: 'Gold nanoparticle synthesis by citrate reduction', text:
+`2.1 Reagents
+Chloroauric acid (HAuCl4, 1 mM) and trisodium citrate (38.8 mM) were prepared in deionized water.
+2.2 Synthesis
+Fifty mL of 1 mM HAuCl4 was brought to a boil on a hot plate under constant magnetic stirring. Then 5 mL of 38.8 mM sodium citrate was rapidly added. The solution was kept boiling for 15 min until the color changed from pale yellow to deep wine red. The suspension was removed from the heat and cooled to room temperature for 15 min under gentle stirring. The nanoparticles were stored at 4 °C in the dark.` },
+    dna: { title: 'Genomic DNA extraction by the CTAB method', text:
+`2.1 Tissue homogenization
+Leaf tissue (100 mg) was ground to a fine powder in liquid nitrogen. The powder was transferred to a tube with 700 µL of CTAB buffer preheated to 65 °C and incubated for 30 min with occasional mixing.
+2.2 Purification
+An equal volume of chloroform:isoamyl alcohol (24:1) was added and mixed by inversion. Samples were centrifuged at 12,000 × g for 10 min. The upper aqueous phase was transferred to a new tube.
+2.3 Precipitation
+DNA was precipitated with 0.7 volumes of cold isopropanol and incubated at -20 °C for 20 min. The pellet was collected by centrifugation at 12,000 × g for 10 min, washed with 70% ethanol, air dried, and resuspended in 50 µL of TE buffer.` },
+    pcr: { title: 'Standard PCR amplification protocol', text:
+`2.1 Reaction setup
+Reactions were assembled on ice in 25 µL volumes containing 12.5 µL of 2X Master Mix, 1 µL of each primer (10 µM), 2 µL of template DNA, and nuclease-free water.
+2.2 Thermal cycling
+Samples were placed in a thermocycler and denatured at 95 °C for 3 min. Amplification consisted of 35 cycles of 95 °C for 30 s, 55 °C for 30 s and 72 °C for 1 min. The products were then extended at 72 °C for 5 min and held at 4 °C.
+2.3 Analysis
+Amplicons were loaded on a 1% agarose gel and separated by electrophoresis at 100 V for 40 min.` }
+};
 
-        function renderHistory() {
-            let saved = getSavedPapers();
-            const listEl = document.getElementById('savedList');
-            const countEl = document.getElementById('savedCount');
-            
-            countEl.innerText = `${saved.length} saved`;
-
-            if (saved.length === 0) {
-                listEl.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-4">No saved papers yet. Click the bookmark icon to store your analysis.</p>`;
-                return;
-            }
-
-            listEl.innerHTML = saved.map((item, index) => `
-                <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between gap-2 hover:border-cyan-500/50 transition">
-                    <div class="cursor-pointer flex-1 truncate" onclick="loadSavedPaper(${index})" title="Click to load">
-                        <p class="text-xs font-medium text-slate-200 truncate italic">${item.apaTitle}</p>
-                        <p class="text-[10px] text-slate-400">${item.time} • ${item.stepsCount} steps</p>
-                    </div>
-                    <div class="flex gap-1">
-                        <button onclick="loadSavedPaper(${index})" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-cyan-400 text-xs" title="Load">
-                            <i data-lucide="folder-open" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <button onclick="deleteSavedPaper(event, ${index})" class="p-1.5 bg-slate-800 hover:bg-red-900/40 rounded text-red-400 text-xs" title="Delete">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
-
-        function loadSavedPaper(index) {
-            let saved = getSavedPapers();
-            const item = saved[index];
-            if (!item) return;
-
-            currentActiveData = item;
-            document.getElementById('paperText').value = item.text;
-            document.getElementById('statSteps').innerText = item.stepsCount;
-            document.getElementById('statReqs').innerText = item.reqsCount;
-            document.getElementById('statTime').innerText = item.time;
-
-            document.getElementById('mermaidContainer').innerHTML = `<div class="mermaid">${item.mermaid}</div>`;
-            mermaid.run();
-
-            document.getElementById('tabSteps').innerHTML = item.stepsHtml;
-            switchTab('flowchart');
-        }
-
-        function deleteSavedPaper(event, index) {
-            event.stopPropagation();
-            let saved = getSavedPapers();
-            saved.splice(index, 1);
-            localStorage.setItem('scien_saved_papers_apa', JSON.stringify(saved));
-            renderHistory();
-        }
-
-        function switchTab(tab) {
-            const fcBtn = document.getElementById('tabFlowchartBtn');
-            const stBtn = document.getElementById('tabStepsBtn');
-            const fcDiv = document.getElementById('tabFlowchart');
-            const stDiv = document.getElementById('tabSteps');
-
-            if (tab === 'flowchart') {
-                fcBtn.className = "px-4 py-2 text-xs font-medium rounded-lg bg-cyan-500/10 text-cyan-400 transition flex items-center gap-2";
-                stBtn.className = "px-4 py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center gap-2";
-                fcDiv.classList.remove('hidden');
-                stDiv.classList.add('hidden');
-            } else {
-                stBtn.className = "px-4 py-2 text-xs font-medium rounded-lg bg-cyan-500/10 text-cyan-400 transition flex items-center gap-2";
-                fcBtn.className = "px-4 py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center gap-2";
-                stDiv.classList.remove('hidden');
-                fcDiv.classList.add('hidden');
-            }
-        }
-
-        function copiarResultados() {
-            navigator.clipboard.writeText(document.getElementById('paperText').value);
-            alert('Text copied to clipboard!');
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            renderHistory();
-        });
-    </script>
+/* =====================================================================
+   Init
+   ===================================================================== */
+window.addEventListener('DOMContentLoaded', async () => {
+    lucide.createIcons();
+    renderHistory();
+    await renderMermaid('graph TD\n  A["Load paper"] --> B["Extract methodology"] --> C["Generate protocol and flowchart"]');
+});
+</script>
 </body>
 </html>
