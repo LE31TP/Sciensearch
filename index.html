@@ -10,7 +10,10 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Mermaid.js for flowcharts -->
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- PDF.js for reading PDF files in browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
         mermaid.initialize({ startOnLoad: true, theme: 'dark' });
     </script>
 </head>
@@ -42,9 +45,18 @@
         <!-- Left Column: Data Input & History -->
         <section class="lg:col-span-5 space-y-6">
             <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur">
-                <h2 class="text-lg font-semibold flex items-center gap-2 mb-4">
-                    <i data-lucide="file-text" class="text-cyan-400 w-5 h-5"></i> Load Paper or Methodology
-                </h2>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold flex items-center gap-2">
+                        <i data-lucide="file-text" class="text-cyan-400 w-5 h-5"></i> Load Paper or Methodology
+                    </h2>
+                    
+                    <!-- BOTÓN PRESIONABLE: Upload Paper -->
+                    <label class="cursor-pointer bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+                        <i data-lucide="upload" class="w-4 h-4"></i>
+                        <span>Upload Paper</span>
+                        <input type="file" id="paperFileInput" accept=".txt,.pdf" class="hidden" onchange="handleFileUpload(event)">
+                    </label>
+                </div>
 
                 <!-- Quick Presets -->
                 <div class="mb-5">
@@ -67,8 +79,11 @@
 
                 <!-- Main Textarea -->
                 <div class="space-y-2">
-                    <label for="paperText" class="block text-xs font-medium text-slate-400">Paper text / Materials & Methods section:</label>
-                    <textarea id="paperText" rows="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition resize-none" placeholder="Paste the abstract or experimental steps of the paper here..."></textarea>
+                    <div class="flex items-center justify-between">
+                        <label for="paperText" class="block text-xs font-medium text-slate-400">Paper text / Materials & Methods section:</label>
+                        <span id="uploadStatus" class="text-[10px] text-cyan-400 hidden">Loading file...</span>
+                    </div>
+                    <textarea id="paperText" rows="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition resize-none" placeholder="Paste text here or click 'Upload Paper' to select a PDF/TXT file..."></textarea>
                 </div>
 
                 <!-- Optional API Key Configuration -->
@@ -142,315 +157,4 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <button onclick="copiarResultados()" title="Copy text" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition">
-                            <i data-lucide="copy" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Tab Content: Flowchart -->
-                <div id="tabFlowchart" class="flex-1 flex flex-col justify-center items-center">
-                    <div id="mermaidContainer" class="w-full overflow-x-auto p-4 bg-slate-950/60 rounded-xl border border-slate-800/60 flex justify-center">
-                        <div class="mermaid">
-                            graph TD
-                                A[Load a paper or select a preset] --> B[The agent will process the methodology]
-                        </div>
-                    </div>
-                    <p class="text-[11px] text-slate-500 mt-3 text-center">Flowchart automatically generated from the extracted experimental workflow.</p>
-                </div>
-
-                <!-- Tab Content: Step-by-Step -->
-                <div id="tabSteps" class="hidden flex-1 space-y-4 overflow-y-auto max-h-[500px] pr-2">
-                    <div class="text-center text-slate-500 py-12">
-                        <i data-lucide="flask-conical" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
-                        <p class="text-sm">No protocol processed yet.</p>
-                        <p class="text-xs">Select an example or enter text to begin.</p>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Logic and UI Scripts -->
-    <script>
-        lucide.createIcons();
-
-        let currentActiveData = {
-            title: "Custom Analysis",
-            text: "",
-            stepsCount: 0,
-            reqsCount: 0,
-            time: "0 min",
-            mermaid: "graph TD\n    A[Empty] --> B[Run analysis]",
-            stepsHtml: ""
-        };
-
-        const presets = {
-            gold: {
-                title: "Gold Nanoparticles Synthesis (Turkevich Method)",
-                reqs: ["HAuCl4 (1 mM)", "Sodium citrate (38.8 mM)", "Deionized water", "Hot plate with magnetic stirring"],
-                time: "45 min",
-                steps: [
-                    { num: 1, action: "Solution preparation", details: "Dissolve HAuCl4 in deionized water and bring to a boil under constant magnetic stirring.", temp: "100 °C", time: "15 min" },
-                    { num: 2, action: "Adding reducing agent", details: "Quickly add the sodium citrate solution to the boiling chloroauric acid solution.", temp: "100 °C", time: "Instant" },
-                    { num: 3, action: "Reduction and color change", details: "Maintain stirring until observing a color change from pale yellow to deep wine red.", temp: "100 °C", time: "10-15 min" },
-                    { num: 4, action: "Cooling down", details: "Remove from the hot plate and allow the suspension to reach room temperature under gentle stirring.", temp: "Room temp", time: "15 min" }
-                ],
-                mermaid: `graph TD
-                    A[Prepare 1mM HAuCl4] -->|Heat to 100°C| B[Add Sodium Citrate]
-                    B -->|Constant stirring| C[Color change to wine red]
-                    C -->|Cool down| D[Au Nanoparticles ready]`
-            },
-            dna: {
-                title: "Genomic DNA Extraction by CTAB Method",
-                reqs: ["CTAB Buffer", "Chloroform-Isoamyl Alcohol (24:1)", "Cold isopropanol", "EtOH 70%"],
-                time: "90 min",
-                steps: [
-                    { num: 1, action: "Sample homogenization", details: "Grind plant tissue in the presence of CTAB buffer preheated to 65 °C.", temp: "65 °C", time: "30 min" },
-                    { num: 2, action: "Chloroform purification", details: "Add an equal volume of Chloroform:Isoamyl alcohol, mix by inversion, and centrifuge at 12,000 rpm.", temp: "Room temp", time: "10 min" },
-                    { num: 3, action: "Nucleic acid precipitation", details: "Recover the upper aqueous phase and precipitate the DNA with cold isopropanol.", temp: "-20 °C", time: "20 min" },
-                    { num: 4, action: "Washing and resuspension", details: "Wash the pellet with 70% ethanol, air dry, and resuspend in TE buffer.", temp: "Room temp", time: "15 min" }
-                ],
-                mermaid: `graph TD
-                    A[Grind tissue with CTAB] -->|Incubate 65°C| B[Add Chloroform-Isoamyl]
-                    B -->|Centrifuge| C[Precipitate DNA with Isopropanol]
-                    C -->|Wash EtOH 70%| D[Resuspend in TE Buffer]`
-            },
-            pcr: {
-                title: "Standard PCR Amplification Protocol",
-                reqs: ["Master Mix 2X", "Forward/Reverse Primers", "Template DNA", "Nuclease-free water"],
-                time: "120 min",
-                steps: [
-                    { num: 1, action: "Mix assembly", details: "Combine Master Mix, primers, DNA template, and water in a PCR tube on ice.", temp: "4 °C", time: "10 min" },
-                    { num: 2, action: "Initial denaturation", details: "Place in thermal cycler and perform initial polymerase activation.", temp: "95 °C", time: "3 min" },
-                    { num: 3, action: "Amplification cycles (35x)", details: "Denaturation (95°C, 30s) -> Annealing (Primer Tm, 30s) -> Extension (72°C, 1 min/kb).", temp: "Variable", time: "90 min" },
-                    { num: 4, action: "Final extension and storage", details: "Final extension to ensure complete products and hold at storage temperature.", temp: "4 °C", time: "Indefinite" }
-                ],
-                mermaid: `graph TD
-                    A[Prepare Master Mix & DNA] -->|Denaturation 95°C| B[Cycles: Denature -> Anneal -> Extend]
-                    B -->|35 repeats| C[Final Extension 72°C]
-                    C -->|Hold| D[PCR products ready]`
-            }
-        };
-
-        function loadPreset(key) {
-            const data = presets[key];
-            if (!data) return;
-
-            const paperTextValue = `Protocol: ${data.title}\nReagents: ${data.reqs.join(', ')}`;
-            document.getElementById('paperText').value = paperTextValue;
-            
-            document.getElementById('statSteps').innerText = data.steps.length;
-            document.getElementById('statReqs').innerText = data.reqs.length;
-            document.getElementById('statTime').innerText = data.time;
-
-            const container = document.getElementById('mermaidContainer');
-            container.innerHTML = `<div class="mermaid">${data.mermaid}</div>`;
-            mermaid.run();
-
-            const stepsHtml = data.steps.map(s => `
-                <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 flex gap-4 items-start">
-                    <div class="bg-cyan-500/10 text-cyan-400 font-bold px-3 py-1.5 rounded-lg border border-cyan-500/20 text-sm">
-                        ${s.num}
-                    </div>
-                    <div class="space-y-1 flex-1">
-                        <div class="flex items-center justify-between">
-                            <h4 class="text-sm font-semibold text-slate-200">${s.action}</h4>
-                            <div class="flex gap-2 text-[10px]">
-                                <span class="bg-slate-800 px-2 py-0.5 rounded text-cyan-300">🌡️ ${s.temp}</span>
-                                <span class="bg-slate-800 px-2 py-0.5 rounded text-emerald-300">⏱️ ${s.time}</span>
-                            </div>
-                        </div>
-                        <p class="text-xs text-slate-400">${s.details}</p>
-                    </div>
-                </div>
-            `).join('');
-
-            document.getElementById('tabSteps').innerHTML = stepsHtml;
-
-            // Update current active state for saving
-            currentActiveData = {
-                title: data.title,
-                text: paperTextValue,
-                stepsCount: data.steps.length,
-                reqsCount: data.reqs.length,
-                time: data.time,
-                mermaid: data.mermaid,
-                stepsHtml: stepsHtml
-            };
-
-            switchTab('flowchart');
-        }
-
-        function analizarPaper() {
-            const text = document.getElementById('paperText').value.trim();
-            if (!text) {
-                alert('Please enter or paste the text of a paper.');
-                return;
-            }
-
-            document.getElementById('statSteps').innerText = "3";
-            document.getElementById('statReqs').innerText = "4";
-            document.getElementById('statTime').innerText = "30 min";
-
-            const mermaidCode = `graph TD
-                A[Receive Paper Text] --> B[Extract Methodology & Parameters]
-                B --> C[Generate Step-by-Step Protocol]`;
-
-            const container = document.getElementById('mermaidContainer');
-            container.innerHTML = `<div class="mermaid">${mermaidCode}</div>`;
-            mermaid.run();
-
-            const stepsHtml = `
-                <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 flex gap-4 items-start">
-                    <div class="bg-cyan-500/10 text-cyan-400 font-bold px-3 py-1.5 rounded-lg border border-cyan-500/20 text-sm">1</div>
-                    <div class="space-y-1 flex-1">
-                        <h4 class="text-sm font-semibold text-slate-200">Preliminary Text Analysis</h4>
-                        <p class="text-xs text-slate-400">Processing the provided excerpts to identify experimental objectives.</p>
-                    </div>
-                </div>
-                <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 flex gap-4 items-start">
-                    <div class="bg-cyan-500/10 text-cyan-400 font-bold px-3 py-1.5 rounded-lg border border-cyan-500/20 text-sm">2</div>
-                    <div class="space-y-1 flex-1">
-                        <h4 class="text-sm font-semibold text-slate-200">Phase Structuring</h4>
-                        <p class="text-xs text-slate-400">Sequential breakdown of detected reagents and thermal/time parameters.</p>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('tabSteps').innerHTML = stepsHtml;
-
-            currentActiveData = {
-                title: "Custom Analysis: " + text.substring(0, 30) + "...",
-                text: text,
-                stepsCount: 3,
-                reqsCount: 4,
-                time: "30 min",
-                mermaid: mermaidCode,
-                stepsHtml: stepsHtml
-            };
-
-            switchTab('flowchart');
-        }
-
-        // --- LocalStorage Management ---
-        function getSavedPapers() {
-            try {
-                return JSON.parse(localStorage.getItem('scien_saved_papers') || '[]');
-            } catch (e) {
-                return [];
-            }
-        }
-
-        function saveCurrentPaper() {
-            if (!currentActiveData.text && document.getElementById('paperText').value.trim() === '') {
-                alert('Please load or analyze a paper before saving.');
-                return;
-            }
-            
-            // If user typed custom text without analyzing yet
-            if (!currentActiveData.text || document.getElementById('paperText').value !== currentActiveData.text) {
-                analizarPaper();
-            }
-
-            let saved = getSavedPapers();
-            // Prevent exact duplicates
-            saved.unshift(currentActiveData);
-            // Keep last 15 items
-            if (saved.length > 15) saved.pop();
-
-            localStorage.setItem('scien_saved_papers', JSON.stringify(saved));
-            renderHistory();
-            alert('Paper saved successfully to browser storage!');
-        }
-
-        function renderHistory() {
-            let saved = getSavedPapers();
-            const listEl = document.getElementById('savedList');
-            const countEl = document.getElementById('savedCount');
-            
-            countEl.innerText = `${saved.length} saved`;
-
-            if (saved.length === 0) {
-                listEl.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-4">No saved papers yet. Click the bookmark icon to store your current analysis.</p>`;
-                return;
-            }
-
-            listEl.innerHTML = saved.map((item, index) => `
-                <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between gap-2 hover:border-cyan-500/50 transition">
-                    <div class="cursor-pointer flex-1 truncate" onclick="loadSavedPaper(${index})" title="Click to load">
-                        <p class="text-xs font-medium text-slate-200 truncate">${item.title}</p>
-                        <p class="text-[10px] text-slate-400">${item.time} • ${item.stepsCount} steps</p>
-                    </div>
-                    <div class="flex gap-1">
-                        <button onclick="loadSavedPaper(${index})" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-cyan-400 text-xs" title="Load">
-                            <i data-lucide="folder-open" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <button onclick="deleteSavedPaper(event, ${index})" class="p-1.5 bg-slate-800 hover:bg-red-900/40 rounded text-red-400 text-xs" title="Delete">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
-
-        function loadSavedPaper(index) {
-            let saved = getSavedPapers();
-            const item = saved[index];
-            if (!item) return;
-
-            currentActiveData = item;
-            document.getElementById('paperText').value = item.text;
-            document.getElementById('statSteps').innerText = item.stepsCount;
-            document.getElementById('statReqs').innerText = item.reqsCount;
-            document.getElementById('statTime').innerText = item.time;
-
-            document.getElementById('mermaidContainer').innerHTML = `<div class="mermaid">${item.mermaid}</div>`;
-            mermaid.run();
-
-            document.getElementById('tabSteps').innerHTML = item.stepsHtml;
-            switchTab('flowchart');
-        }
-
-        function deleteSavedPaper(event, index) {
-            event.stopPropagation();
-            let saved = getSavedPapers();
-            saved.splice(index, 1);
-            localStorage.setItem('scien_saved_papers', JSON.stringify(saved));
-            renderHistory();
-        }
-
-        function switchTab(tab) {
-            const fcBtn = document.getElementById('tabFlowchartBtn');
-            const stBtn = document.getElementById('tabStepsBtn');
-            const fcDiv = document.getElementById('tabFlowchart');
-            const stDiv = document.getElementById('tabSteps');
-
-            if (tab === 'flowchart') {
-                fcBtn.className = "px-4 py-2 text-xs font-medium rounded-lg bg-cyan-500/10 text-cyan-400 transition flex items-center gap-2";
-                stBtn.className = "px-4 py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center gap-2";
-                fcDiv.classList.remove('hidden');
-                stDiv.classList.add('hidden');
-            } else {
-                stBtn.className = "px-4 py-2 text-xs font-medium rounded-lg bg-cyan-500/10 text-cyan-400 transition flex items-center gap-2";
-                fcBtn.className = "px-4 py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-white transition flex items-center gap-2";
-                stDiv.classList.remove('hidden');
-                fcDiv.classList.add('hidden');
-            }
-        }
-
-        function copiarResultados() {
-            navigator.clipboard.writeText(document.getElementById('paperText').value);
-            alert('Text copied to clipboard!');
-        }
-
-        // Initialize history on load
-        window.addEventListener('DOMContentLoaded', () => {
-            renderHistory();
-        });
-    </script>
-</body>
-</html>
+                        <button onclick="copiarResultados()" title="Copy text" class="p-2 bg-slate-800 hover:bg
