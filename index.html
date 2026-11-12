@@ -32,7 +32,20 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <nav class="max-w-7xl mx-auto px-4 pt-6">
+        <div class="inline-flex flex-wrap gap-1 bg-slate-900/70 border border-slate-800 rounded-2xl p-1.5">
+            <button id="nav-methodology" onclick="switchMain('methodology')" class="px-4 py-2.5 text-xs font-medium rounded-xl text-slate-400 border border-transparent flex items-center gap-2"><i data-lucide="flask-conical" class="w-4 h-4"></i> Methodology research</button>
+            <button id="nav-summary" onclick="switchMain('summary')" class="px-4 py-2.5 text-xs font-medium rounded-xl text-slate-400 border border-transparent flex items-center gap-2"><i data-lucide="align-left" class="w-4 h-4"></i> Summary</button>
+            <button id="nav-references" onclick="switchMain('references')" class="px-4 py-2.5 text-xs font-medium rounded-xl text-slate-400 border border-transparent flex items-center gap-2"><i data-lucide="book-marked" class="w-4 h-4"></i> References</button>
+            <button id="nav-search" onclick="switchMain('search')" class="px-4 py-2.5 text-xs font-medium rounded-xl text-slate-400 border border-transparent flex items-center gap-2"><i data-lucide="search" class="w-4 h-4"></i> Search paper</button>
+        </div>
+        <div class="mt-3 text-[11px] text-slate-400 bg-slate-900/40 border border-slate-800/80 rounded-xl px-4 py-2 flex items-center gap-2">
+            <i data-lucide="file-check" class="w-4 h-4 text-cyan-400 shrink-0"></i><span id="activePaperText"></span>
+        </div>
+    </nav>
+
+    <!-- ============ TAB 1: METHODOLOGY RESEARCH (previous app) ============ -->
+    <main id="panel-methodology" class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
 
         <!-- LEFT COLUMN -->
         <section class="lg:col-span-5 space-y-6">
@@ -155,13 +168,13 @@
                         </button>
                     </div>
                     <div class="flex items-center gap-2">
-    <button onclick="copyProtocol()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 rounded-lg text-cyan-300 text-xs font-medium transition flex items-center gap-1.5">
-        <i data-lucide="copy" class="w-4 h-4"></i> Copy
-    </button>
-    <button onclick="downloadProtocol()" class="px-3 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 rounded-lg text-cyan-300 text-xs font-medium transition flex items-center gap-1.5">
-        <i data-lucide="download" class="w-4 h-4"></i> Download .md
-    </button>
-</div>
+                        <button onclick="copyProtocol()" title="Copy protocol as text" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="downloadProtocol()" title="Download protocol (.md)" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 transition">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div id="tabFlowchart" class="flex-1 flex flex-col justify-center items-center">
@@ -179,6 +192,74 @@
             </div>
         </section>
     </main>
+
+    <!-- ============ TAB 2: SUMMARY ============ -->
+    <div id="panel-summary" class="hidden max-w-7xl mx-auto px-4 py-8 space-y-6">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur">
+            <h2 class="text-lg font-semibold flex items-center gap-2 mb-1"><i data-lucide="align-left" class="text-cyan-400 w-5 h-5"></i> Article summary</h2>
+            <p class="text-xs text-slate-400 mb-4">Extractive summary: it selects the most informative sentences of the paper and groups them by section. Sentences are copied as written, nothing is rewritten and nothing is stored.</p>
+            <div class="flex flex-wrap items-center gap-3">
+                <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 px-3 py-2 rounded-lg text-xs text-cyan-300 flex items-center gap-2">
+                    <i data-lucide="upload-cloud" class="w-4 h-4"></i> Upload PDF or TXT
+                    <input type="file" id="summaryFileInput" accept=".pdf,.txt" class="hidden" onchange="handleFileUpload(event)">
+                </label>
+                <button onclick="switchMain('search')" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-slate-300 flex items-center gap-2"><i data-lucide="search" class="w-4 h-4"></i> Find a paper</button>
+                <select id="sumLength" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200">
+                    <option value="4">Short</option><option value="8" selected>Medium</option><option value="12">Long</option>
+                </select>
+                <button onclick="generateSummary()" class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-semibold rounded-lg text-xs flex items-center gap-2"><i data-lucide="wand-2" class="w-4 h-4"></i> Generate summary</button>
+                <button onclick="copySummary()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-slate-300 flex items-center gap-2"><i data-lucide="copy" class="w-4 h-4"></i> Copy</button>
+            </div>
+            <p id="sumStatus" class="text-[11px] mt-3 font-medium"></p>
+        </div>
+        <div id="summaryOutput" class="space-y-4"></div>
+    </div>
+
+    <!-- ============ TAB 3: REFERENCES ============ -->
+    <div id="panel-references" class="hidden max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur space-y-4 max-w-3xl">
+            <h2 class="text-lg font-semibold flex items-center gap-2"><i data-lucide="book-marked" class="text-cyan-400 w-5 h-5"></i> Reference export</h2>
+            <p class="text-xs text-slate-400">Download your references as RIS or BibTeX and import the file into Mendeley, Zotero, EndNote or any other reference manager.</p>
+            <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                    <p class="text-[11px] font-medium text-slate-400 mb-2">What to export</p>
+                    <label class="flex items-center gap-2 text-xs text-slate-300 mb-1"><input type="radio" name="refScope" value="current" checked onchange="refreshRefs()"> Current paper (fields from Methodology research)</label>
+                    <label class="flex items-center gap-2 text-xs text-slate-300"><input type="radio" name="refScope" value="history" onchange="refreshRefs()"> Whole usage history</label>
+                </div>
+                <div>
+                    <p class="text-[11px] font-medium text-slate-400 mb-2">Format</p>
+                    <select id="refFormat" onchange="refreshRefs()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200">
+                        <option value="ris">RIS (.ris): Mendeley, Zotero, EndNote</option>
+                        <option value="bibtex">BibTeX (.bib)</option>
+                        <option value="apa">APA 7 text (.txt)</option>
+                    </select>
+                </div>
+            </div>
+            <textarea id="refPreview" readonly rows="12" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-300 resize-none" placeholder="Nothing to export yet. Fill the reference fields in Methodology research, pick a paper in Search paper, or generate protocols to build your history."></textarea>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="downloadRefs()" class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-semibold rounded-lg text-xs flex items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Download file</button>
+                <button onclick="copyRefs()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-slate-300 flex items-center gap-2"><i data-lucide="copy" class="w-4 h-4"></i> Copy</button>
+                <button onclick="editFields()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-slate-300 flex items-center gap-2"><i data-lucide="flask-conical" class="w-4 h-4"></i> Edit reference fields</button>
+            </div>
+            <p id="refCount" class="text-[11px] text-slate-500"></p>
+        </div>
+    </div>
+
+    <!-- ============ TAB 4: SEARCH PAPER ============ -->
+    <div id="panel-search" class="hidden max-w-7xl mx-auto px-4 py-8 space-y-6">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur">
+            <h2 class="text-lg font-semibold flex items-center gap-2 mb-1"><i data-lucide="search" class="text-cyan-400 w-5 h-5"></i> Search for a paper</h2>
+            <p class="text-xs text-slate-400 mb-4">Search by title, keywords or DOI (source: OpenAlex). When the paper is open access, Sciensearch tries to load its full text so you don't have to upload a PDF. If it can't, you still get the reference and the abstract.</p>
+            <div class="flex flex-wrap gap-2">
+                <input id="searchQuery" type="text" placeholder="Title, keywords or DOI" onkeydown="if(event.key==='Enter')runSearch()" class="flex-1 min-w-[220px] bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500">
+                <button onclick="runSearch()" class="px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-semibold rounded-lg text-sm flex items-center gap-2"><i data-lucide="search" class="w-4 h-4"></i> Search</button>
+            </div>
+            <label class="flex items-center gap-2 text-xs text-slate-400 mt-3"><input type="checkbox" id="searchOA"> Open access only</label>
+            <p id="searchStatus" class="text-[11px] mt-3 font-medium text-slate-400"></p>
+            <div id="searchNext" class="mt-3 flex flex-wrap gap-2"></div>
+        </div>
+        <div id="searchResults" class="space-y-3"></div>
+    </div>
 
     <div id="toast" class="fixed bottom-4 right-4 bg-slate-800 border border-slate-700 text-slate-100 text-xs px-4 py-2 rounded-lg shadow-xl opacity-0 pointer-events-none transition-opacity"></div>
 
@@ -584,6 +665,7 @@ function loadPreset(key) {
     ['paperAuthor', 'paperYear', 'paperTitle', 'paperJournal', 'paperVol', 'paperDoi'].forEach(id => $(id).value = '');
     $('paperTitle').value = d.title;
     $('paperText').value = d.text;
+    setActivePaper(null);
     setStatus('Example loaded (no real reference attached).', 'info');
     generateProtocol();
 }
@@ -591,7 +673,7 @@ function loadPreset(key) {
 async function handleFileUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
-    setStatus(`Reading ${file.name}…`, 'info');
+    report(`Reading ${file.name}…`, 'info');
     try {
         let lines, meta = { authors: '', year: '', title: '', journal: '', vol: '', doi: '' };
         if (/\.pdf$/i.test(file.name)) {
@@ -602,6 +684,12 @@ async function handleFileUpload(event) {
         } else {
             lines = (await file.text()).split(/\r?\n/);
         }
+        if (!lines.some(l => l.trim())) {
+            setActivePaper(null);
+            report('No text found. This PDF may be a scan (image), which needs OCR first.', 'err');
+            return;
+        }
+        setActivePaper(file.name, lines);   // kept in memory only, never stored
         let methods = findMethods(lines);
         let kind = 'ok', msg;
         if (methods) {
@@ -617,13 +705,15 @@ async function handleFileUpload(event) {
         $('paperAuthor').value = meta.authors; $('paperYear').value = meta.year; $('paperTitle').value = meta.title;
         $('paperJournal').value = meta.journal; $('paperVol').value = meta.vol; $('paperDoi').value = meta.doi;
         $('uploadButtonLabel').innerText = file.name;
-        setStatus(msg + ' Review the APA fields.', kind);
-        if (methods) generateProtocol();
+        report(msg + ' Review the APA fields.', kind);
+        if (currentMain === 'summary') generateSummary();
+        else if (currentMain === 'methodology' && methods) generateProtocol();
     } catch (err) {
         console.error(err);
-        setStatus('Could not read the file. Paste the Methods text manually.', 'err');
+        report('Could not read the file. Paste the text manually.', 'err');
+    } finally {
+        event.target.value = '';   // allows re-uploading the same file
     }
-    event.target.value = '';   // allows re-uploading the same file
 }
 
 function switchTab(tab) {
@@ -668,11 +758,11 @@ const HKEY = 'sciensearch_history_apa';
 function getHistory() { try { return JSON.parse(localStorage.getItem(HKEY) || '[]'); } catch (e) { return []; } }
 function setHistory(h) { try { localStorage.setItem(HKEY, JSON.stringify(h)); } catch (e) { toast('Could not save history (storage blocked).'); } }
 
-function logUsage(p) {
+function logUsage(p, kind = 'protocol') {
     const f = getFields();
-    const entry = { id: Date.now(), date: new Date().toISOString(), ...f, steps: p.steps.length, items: p.reagents.length + p.equipment.length, time: fmtMin(p.totalMin) };
+    const entry = { id: Date.now(), date: new Date().toISOString(), ...f, kind, steps: p ? p.steps.length : 0, items: p ? p.reagents.length + p.equipment.length : 0, time: p ? fmtMin(p.totalMin) : '' };
     const h = getHistory();
-    const sig = e => `${e.authors}|${e.year}|${e.title}`;
+    const sig = e => `${e.authors}|${e.year}|${e.title}|${e.kind || 'protocol'}`;
     if (h.length && sig(h[0]) === sig(entry) && h[0].steps === entry.steps) h[0] = entry;
     else h.unshift(entry);
     setHistory(h.slice(0, 50));
@@ -685,14 +775,14 @@ function renderHistory() {
         <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 flex items-start justify-between gap-2 hover:border-cyan-500/50 transition">
             <div class="flex-1 min-w-0">
                 <p class="text-xs text-slate-200 break-words">${buildApa(e, true)}</p>
-                <p class="text-[10px] text-slate-500 mt-1">${esc(new Date(e.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }))} • ${e.steps} steps • ${esc(e.time)}</p>
+                <p class="text-[10px] text-slate-500 mt-1">${esc(new Date(e.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }))} • ${e.kind === 'summary' ? 'Summary' : e.steps + ' steps • ' + esc(e.time)}</p>
             </div>
             <div class="flex gap-1">
                 <button onclick="copyApaAt(${i})" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded text-cyan-400" title="Copy APA"><i data-lucide="quote" class="w-3.5 h-3.5"></i></button>
                 <button onclick="deleteAt(${i})" class="p-1.5 bg-slate-800 hover:bg-red-900/40 rounded text-red-400" title="Delete"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
             </div>
         </div>`).join('')
-        : '<p class="text-xs text-slate-500 italic text-center py-4">No usage yet. Each protocol you generate is logged here as an APA reference.</p>';
+        : '<p class="text-xs text-slate-500 italic text-center py-4">No usage yet. Each protocol or summary you generate is logged here as an APA reference.</p>';
     lucide.createIcons();
 }
 const copy = (text, msg) => navigator.clipboard.writeText(text).then(() => toast(msg), () => toast('Could not copy.'));
@@ -751,10 +841,421 @@ Amplicons were loaded on a 1% agarose gel and separated by electrophoresis at 10
 };
 
 /* =====================================================================
+   Active paper (in memory only) + status helpers shared by all tabs
+   ===================================================================== */
+let activePaper = null;        // { name, lines, partial }  never written to storage
+let currentMain = 'methodology';
+const KIND_CLS = { ok: 'text-emerald-400', warn: 'text-amber-400', err: 'text-red-400', info: 'text-slate-400' };
+
+function setActivePaper(name, lines, partial = false) {
+    activePaper = lines && lines.length ? { name, lines, partial } : null;
+    $('activePaperText').textContent = activePaper
+        ? `Active paper: ${name}${partial ? ' (abstract only)' : ''}. It stays in this browser tab's memory and is never stored.`
+        : 'No paper loaded. Upload a PDF in Methodology research or Summary, or pick one in Search paper.';
+}
+function setSumStatus(msg, kind = 'ok') { const el = $('sumStatus'); el.textContent = msg; el.className = 'text-[11px] mt-3 font-medium ' + KIND_CLS[kind]; }
+function setSearchStatus(msg, kind = 'info') { const el = $('searchStatus'); el.textContent = msg; el.className = 'text-[11px] mt-3 font-medium ' + KIND_CLS[kind]; }
+function report(msg, kind) { setStatus(msg, kind); setSumStatus(msg, kind); }
+
+/* =====================================================================
+   Navigation between the main tabs
+   ===================================================================== */
+const MAIN_TABS = ['methodology', 'summary', 'references', 'search'];
+function switchMain(tab) {
+    currentMain = tab;
+    MAIN_TABS.forEach(t => {
+        $('panel-' + t).classList.toggle('hidden', t !== tab);
+        $('nav-' + t).className = 'px-4 py-2.5 text-xs font-medium rounded-xl border flex items-center gap-2 transition ' +
+            (t === tab ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' : 'text-slate-400 hover:text-white border-transparent');
+    });
+    if (tab === 'references') refreshRefs();
+}
+
+/* =====================================================================
+   Summary (extractive: picks the most informative sentences, per section)
+   ===================================================================== */
+const STOP = new Set(('a about above after again against all also am an and any are as at be because been before being below between both but by can could did do does doing down during each few for from further had has have having he her here hers him his how i if in into is it its itself just me more most my no nor not of off on once only or other our out over own same she should so some such than that the their theirs them then there these they this those through to too under until up very was we were what when where which while who whom why will with would you your et al fig figs table tables however thus therefore may might using used use via per within among').split(' '));
+const SEC_NAMES = [
+    [/^(?:abstract|summary)$/i, 'abstract'],
+    [/^(?:introduction|background)$/i, 'intro'],
+    [/^(?:materials?\s*(?:and|&)\s*methods?|methods?\s*(?:and|&)\s*materials?|methods?|methodology|experimental(?:\s+(?:section|procedures?|methods?|details?|design))?|materials\s+and\s+procedures?)$/i, 'methods'],
+    [/^results?(?:\s+(?:and|&)\s+discussion)?$/i, 'results'],
+    [/^discussion$/i, 'discussion'],
+    [/^(?:conclusions?|concluding\s+remarks|summary\s+and\s+conclusions?)$/i, 'conclusion'],
+    [/^(?:references|bibliography|acknowledg(?:e)?ments?|author\s+contributions?|funding|competing\s+interests?|conflicts?\s+of\s+interest|data\s+availability(?:\s+statement)?|supplementary(?:\s+\w+)*|appendix.*)$/i, 'skip']
+];
+const CUE_RE = /\b(?:we (?:found|show|showed|demonstrate|demonstrated|observed|propose|proposed|report|identified|conclude)|results? (?:show|showed|indicate|indicated|suggest|revealed|demonstrate)|significantly|higher|lower|increased|decreased|reduced|improved|in conclusion|our (?:findings|results|data)|this study|the aim|the objective|we aimed|here we)\b/i;
+
+function sectionName(line) {
+    const l = line.trim();
+    if (l.length > 70) return null;
+    const t = l.replace(/^(?:(?:\d+|[IVX]+)(?:\.\d+)*\.?\s+)?/, '').replace(/\s*:?\s*$/, '');
+    for (const [re, name] of SEC_NAMES) if (re.test(t)) return name;
+    return null;
+}
+function sectionize(lines) {
+    const secs = [{ name: 'front', lines: [] }];
+    for (const raw of lines) {
+        const l = raw.trim();
+        if (!l) continue;
+        const nm = sectionName(l);
+        if (nm) { secs.push({ name: nm, lines: [] }); continue; }
+        const inl = l.match(/^abstract\s*[:.—–-]\s*(.{40,})$/i);
+        if (inl) { secs.push({ name: 'abstract', lines: [inl[1]] }); continue; }
+        secs[secs.length - 1].lines.push(l);
+    }
+    return secs;
+}
+function joinLines(ls) {
+    let out = '';
+    for (const l of ls) {
+        if (out && /[a-z]-$/.test(out) && /^[a-z]/.test(l)) out = out.slice(0, -1) + l;
+        else out += (out ? ' ' : '') + l;
+    }
+    return out;
+}
+function cleanBasic(t) {
+    return t.replace(/[−‒]/g, '-').replace(/[   ]/g, ' ')
+        .replace(/\s*\[(?:\d+(?:\s*[,–-]\s*\d+)*)\]/g, '')
+        .replace(/\s*\((?:[A-Z][\w\-']+(?:\s+(?:et al\.?|and|&)\s*[A-Z]?[\w\-']*)?,?\s*(?:19|20)\d\d[a-z]?(?:\s*[;,]\s*)?)+\)/g, '')
+        .replace(/\s+/g, ' ').trim();
+}
+function goodSentence(s) {
+    const n = s.split(/\s+/).length;
+    if (n < 7 || n > 60) return false;
+    if (/^(?:fig(?:ure)?s?|tables?|supplementary|copyright)\b/i.test(s)) return false;
+    if (/https?:\/\/|www\.|@|doi:|©/i.test(s)) return false;
+    if ((s.match(/\d/g) || []).length / s.length > 0.2) return false;   // table rows, coordinates
+    return /[a-z]{3}/.test(s) && /[.!?]$/.test(s);
+}
+const wordsOf = s => (s.toLowerCase().match(/[a-z][a-z\-]{3,}/g) || []).filter(w => !STOP.has(w));
+function wordFreq(text) { const f = {}; wordsOf(text).forEach(w => f[w] = (f[w] || 0) + 1); return f; }
+function scoreSentence(s, freq, titleWords, cue) {
+    const ws = wordsOf(s);
+    if (!ws.length) return 0;
+    let sc = ws.reduce((a, w) => a + Math.log(1 + (freq[w] || 0)), 0) / Math.sqrt(ws.length);
+    if (cue && CUE_RE.test(s)) sc *= 1.35;
+    if (titleWords.length) sc *= 1 + Math.min(0.3, ws.filter(w => titleWords.includes(w)).length * 0.08);
+    return sc;
+}
+function pickTop(sents, k, freq, titleWords, cue) {
+    return sents.map((s, i) => ({ s, i, sc: scoreSentence(s, freq, titleWords, cue) }))
+        .sort((a, b) => b.sc - a.sc).slice(0, k)
+        .sort((a, b) => a.i - b.i).map(x => x.s);
+}
+function buildSummary(lines, title, n) {
+    const by = {};
+    sectionize(lines).forEach(s => { if (s.name !== 'front' && s.name !== 'skip') (by[s.name] = by[s.name] || []).push(...s.lines); });
+    const sentsOf = key => by[key] ? splitSentences(cleanBasic(joinLines(by[key]))).filter(goodSentence) : [];
+    const titleWords = wordsOf(title || '');
+    const freq = wordFreq(cleanBasic(joinLines(Object.values(by).flat())));
+    const groups = [
+        { label: by.abstract ? 'Abstract highlights' : 'Background and aim', keys: [by.abstract ? 'abstract' : 'intro'], w: 0.3, cue: true },
+        { label: 'Methods', keys: ['methods'], w: 0.2, cue: false },
+        { label: 'Key results', keys: ['results'], w: 0.3, cue: true },
+        { label: 'Conclusions', keys: [by.conclusion ? 'conclusion' : 'discussion'], w: 0.2, cue: true }
+    ];
+    const out = [];
+    for (const g of groups) {
+        const sents = g.keys.flatMap(sentsOf);
+        if (sents.length) out.push({ label: g.label, sents: pickTop(sents, Math.max(1, Math.round(n * g.w)), freq, titleWords, g.cue) });
+    }
+    if (!out.length) {   // no recognizable sections: rank the whole text
+        const all = splitSentences(cleanBasic(joinLines(lines))).filter(goodSentence);
+        if (all.length) out.push({ label: 'Key sentences', sents: pickTop(all, Math.max(4, n), wordFreq(all.join(' ')), titleWords, true) });
+    }
+    return out;
+}
+
+let lastSummary = null;
+function generateSummary() {
+    if (!activePaper) { setSumStatus('Upload a PDF or TXT, or choose a paper in Search paper, first.', 'warn'); return; }
+    const groups = buildSummary(activePaper.lines, $('paperTitle').value.trim(), +$('sumLength').value);
+    if (!groups.length) {
+        lastSummary = null; $('summaryOutput').innerHTML = '';
+        setSumStatus('Not enough readable text to summarize.', 'warn');
+        return;
+    }
+    lastSummary = groups;
+    $('summaryOutput').innerHTML = groups.map(g => `
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5">
+            <h3 class="text-sm font-semibold text-cyan-300 mb-2">${esc(g.label)}</h3>
+            <ul class="space-y-2 list-disc pl-5 text-sm text-slate-300">${g.sents.map(s => `<li>${esc(s)}</li>`).join('')}</ul>
+        </div>`).join('');
+    setSumStatus(activePaper.partial
+        ? 'Only the abstract was available for this paper, so the summary is based on it. Upload the PDF for a full summary.'
+        : 'Sentences are copied from the paper in their original order. Check them against the source before citing.', activePaper.partial ? 'warn' : 'ok');
+    logUsage(null, 'summary');
+}
+function copySummary() {
+    if (!lastSummary) { toast('Generate a summary first.'); return; }
+    copy(lastSummary.map(g => `${g.label}\n` + g.sents.map(s => '- ' + s).join('\n')).join('\n\n') + `\n\nSource: ${buildApa(getFields(), false)}`, 'Summary copied');
+}
+
+/* =====================================================================
+   Reference export (RIS / BibTeX / APA text)
+   ===================================================================== */
+const cleanDoi = s => (s || '').replace(/^(?:https?:\/\/(?:dx\.)?doi\.org\/|doi:\s*)/i, '').trim();
+const asciiOnly = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '');
+function flipName(n) {
+    n = n.trim();
+    if (n.includes(',')) return n;
+    const p = n.split(/\s+/);
+    return p.length < 2 ? n : p[p.length - 1] + ', ' + p.slice(0, -1).join(' ');
+}
+function parseAuthors(str) {
+    if (!str) return [];
+    const s = str.replace(/\.\.\./g, ',').replace(/\bet al\.?/gi, '').replace(/\s*&\s*|\s+and\s+/gi, ', ').replace(/[,;\s]+$/, '');
+    if (s.includes(';')) return s.split(';').map(x => x.trim()).filter(Boolean).map(flipName);
+    const parts = s.split(',').map(x => x.trim()).filter(Boolean);
+    const isInit = p => /^(?:[A-Z]\.?[\s-]*)+$/.test(p);
+    if (parts.length >= 2 && parts.length % 2 === 0 && parts.every((p, i) => i % 2 === 0 || isInit(p)))
+        return parts.filter((_, i) => i % 2 === 0).map((sn, k) => sn + ', ' + parts[2 * k + 1]);   // APA style: Surname, I.
+    return parts.map(flipName);
+}
+function splitVol(v) {
+    const m = (v || '').match(/^\s*(\d+)\s*(?:\(\s*([^)]+?)\s*\))?\s*,?\s*(.*)$/);
+    return m ? { vol: m[1], issue: m[2] || '', pages: m[3].trim() } : { vol: '', issue: '', pages: (v || '').trim() };
+}
+function toRis(list) {
+    return list.map(f => {
+        const v = splitVol(f.vol), pg = v.pages.split(/\s*[-–—]+\s*/), d = cleanDoi(f.doi);
+        const L = [['TY', 'JOUR']];
+        parseAuthors(f.authors).forEach(a => L.push(['AU', a]));
+        if (f.title) L.push(['TI', f.title]);
+        if (f.journal) L.push(['JO', f.journal]);
+        if (f.year) L.push(['PY', f.year]);
+        if (v.vol) L.push(['VL', v.vol]);
+        if (v.issue) L.push(['IS', v.issue]);
+        if (pg[0]) L.push(['SP', pg[0]]);
+        if (pg[1]) L.push(['EP', pg[1]]);
+        if (d) { L.push(['DO', d]); L.push(['UR', 'https://doi.org/' + d]); }
+        L.push(['ER', '']);
+        return L.map(([t, x]) => `${t}  - ${x}`).join('\n');
+    }).join('\n\n');
+}
+const bibEsc = s => String(s || '').replace(/([&%$#_])/g, '\\$1');
+function bibKey(f, used) {
+    const sn = asciiOnly((parseAuthors(f.authors)[0] || '').split(',')[0]).replace(/[^A-Za-z0-9]/g, '').toLowerCase() || 'ref';
+    const tw = asciiOnly((f.title || '').split(/\s+/).find(w => w.length > 3) || '').replace(/[^A-Za-z0-9]/g, '').toLowerCase();
+    const base = sn + (f.year || '') + tw;
+    let k = base, i = 0;
+    while (used.has(k)) k = base + '_' + (++i);
+    used.add(k);
+    return k;
+}
+function toBibtex(list) {
+    const used = new Set();
+    return list.map(f => {
+        const v = splitVol(f.vol);
+        const fields = [['author', parseAuthors(f.authors).join(' and ')], ['title', f.title], ['journal', f.journal], ['year', f.year],
+                        ['volume', v.vol], ['number', v.issue], ['pages', v.pages.replace(/\s*[-–—]+\s*/, '--')], ['doi', cleanDoi(f.doi)]].filter(([, x]) => x);
+        return `@article{${bibKey(f, used)},\n` + fields.map(([k, x]) => `  ${k} = {${k === 'doi' ? x : bibEsc(x)}}`).join(',\n') + '\n}';
+    }).join('\n\n');
+}
+function refEntries() {
+    if (document.querySelector('input[name="refScope"]:checked').value === 'current') {
+        const f = getFields();
+        return f.title || f.authors ? [f] : [];
+    }
+    const seen = new Set(), out = [];
+    for (const e of getHistory()) {
+        const k = `${e.authors}|${e.year}|${e.title}|${e.doi}`;
+        if (!seen.has(k) && (e.title || e.authors)) { seen.add(k); out.push(e); }
+    }
+    return out;
+}
+function refText() {
+    const list = refEntries(), fmt = $('refFormat').value;
+    if (!list.length) return '';
+    if (fmt === 'ris') return toRis(list);
+    if (fmt === 'bibtex') return toBibtex(list);
+    return list.map(f => buildApa(f, false)).sort((a, b) => a.localeCompare(b)).join('\n\n');
+}
+function refreshRefs() {
+    const n = refEntries().length;
+    $('refPreview').value = refText();
+    $('refCount').textContent = n ? `${n} ${n === 1 ? 'reference' : 'references'} ready to export. Review the authors: PDFs rarely store them in a clean format.` : '';
+}
+function downloadRefs() {
+    const t = refText();
+    if (!t) { toast('Nothing to export yet.'); return; }
+    const fmt = $('refFormat').value;
+    const meta = { ris: ['ris', 'application/x-research-info-systems'], bibtex: ['bib', 'application/x-bibtex'], apa: ['txt', 'text/plain'] }[fmt];
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([fmt === 'ris' ? t.replace(/\n/g, '\r\n') : t], { type: meta[1] + ';charset=utf-8' }));
+    a.download = 'references.' + meta[0]; a.click(); URL.revokeObjectURL(a.href);
+}
+function copyRefs() { const t = refText(); t ? copy(t, 'References copied') : toast('Nothing to copy yet.'); }
+function editFields() { switchMain('methodology'); $('paperTitle').focus(); }
+
+/* =====================================================================
+   Search for a paper (OpenAlex) + full text when openly available
+   ===================================================================== */
+const DOI_RE = /^(?:https?:\/\/(?:dx\.)?doi\.org\/|doi:\s*)?(10\.\d{4,9}\/\S+)$/i;
+let searchResults = [];
+
+function initials(given) {
+    return given.split(/\s+/).filter(Boolean).map(g => g.split('-').filter(Boolean).map(x => x[0].toUpperCase() + '.').join('-')).join(' ');
+}
+function apaName(n) {
+    const p = n.trim().split(/\s+/);
+    return p.length < 2 ? n.trim() : p[p.length - 1] + ', ' + initials(p.slice(0, -1).join(' '));
+}
+function apaAuthors(names) {
+    const a = names.map(apaName);
+    if (a.length <= 1) return a.join('');
+    if (a.length <= 20) return a.slice(0, -1).join(', ') + ', & ' + a[a.length - 1];
+    return a.slice(0, 19).join(', ') + ', ... ' + a[a.length - 1];
+}
+function absFromInverted(inv) {
+    if (!inv) return '';
+    const arr = [];
+    for (const [w, pos] of Object.entries(inv)) for (const p of pos) arr[p] = w;
+    return arr.filter(Boolean).join(' ');
+}
+function mapWork(w) {
+    const names = (w.authorships || []).map(a => a.author && a.author.display_name).filter(Boolean);
+    const b = w.biblio || {};
+    const pages = b.first_page ? b.first_page + (b.last_page && b.last_page !== b.first_page ? '-' + b.last_page : '') : '';
+    const vol = [b.volume ? b.volume + (b.issue ? `(${b.issue})` : '') : '', pages].filter(Boolean).join(', ');
+    const pm = ((w.ids || {}).pmcid || '').match(/PMC\d+/i);
+    const loc = w.best_oa_location || {};
+    const safe = u => /^https:\/\//i.test(u || '') ? u : '';
+    return {
+        title: w.title || '(untitled)',
+        year: w.publication_year ? String(w.publication_year) : '',
+        authors: apaAuthors(names),
+        authorsShort: names.slice(0, 3).join(', ') + (names.length > 3 ? ' et al.' : ''),
+        journal: (w.primary_location && w.primary_location.source && w.primary_location.source.display_name) || '',
+        vol, doi: cleanDoi(w.doi),
+        oa: !!(w.open_access && w.open_access.is_oa),
+        pmcid: pm ? pm[0].toUpperCase() : '',
+        pdf: safe(loc.pdf_url),
+        link: safe(w.doi) || safe(loc.landing_page_url) || safe(w.open_access && w.open_access.oa_url),
+        abstract: absFromInverted(w.abstract_inverted_index)
+    };
+}
+function fetchTimeout(url, ms = 20000) {
+    const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
+    return fetch(url, { signal: c.signal }).finally(() => clearTimeout(t));
+}
+
+async function runSearch() {
+    const q = $('searchQuery').value.trim();
+    if (!q) { setSearchStatus('Type a title, keywords or DOI.', 'warn'); return; }
+    const dm = q.match(DOI_RE), filters = [];
+    const params = new URLSearchParams({ 'per-page': '10', select: 'id,doi,title,publication_year,authorships,primary_location,open_access,best_oa_location,abstract_inverted_index,biblio,ids' });
+    if (dm) filters.push('doi:https://doi.org/' + dm[1]); else params.set('search', q);
+    if ($('searchOA').checked) filters.push('open_access.is_oa:true');
+    if (filters.length) params.set('filter', filters.join(','));
+    setSearchStatus('Searching…', 'info');
+    $('searchNext').innerHTML = '';
+    try {
+        const res = await fetchTimeout('https://api.openalex.org/works?' + params);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        searchResults = ((await res.json()).results || []).map(mapWork);
+        renderResults();
+        setSearchStatus(searchResults.length ? `${searchResults.length} results from OpenAlex. Pick one with "Use this paper".` : 'No results. Try other keywords or turn off "Open access only".', searchResults.length ? 'ok' : 'warn');
+    } catch (err) {
+        console.error(err);
+        setSearchStatus('Could not reach OpenAlex. Check your connection and try again.', 'err');
+    }
+}
+function renderResults() {
+    $('searchResults').innerHTML = searchResults.map((r, i) => `
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-5">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="flex-1 min-w-[240px]">
+                    <h3 class="text-sm font-semibold text-slate-100">${esc(r.title)}</h3>
+                    <p class="text-xs text-slate-400 mt-1">${esc(r.authorsShort)}${r.year ? ' • ' + esc(r.year) : ''}${r.journal ? ' • ' + esc(r.journal) : ''}</p>
+                    <div class="flex flex-wrap gap-2 mt-2 text-[10px]">
+                        <span class="px-2 py-0.5 rounded bg-slate-800 ${r.oa ? 'text-emerald-300' : 'text-slate-400'}">${r.oa ? 'Open access' : 'Not open access'}</span>
+                        ${r.pmcid || r.pdf ? '<span class="px-2 py-0.5 rounded bg-slate-800 text-cyan-300">Full text may load</span>' : ''}
+                        ${r.doi ? `<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400">${esc(r.doi)}</span>` : ''}
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="useResult(${i})" class="px-3 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-semibold rounded-lg text-xs">Use this paper</button>
+                    ${r.link ? `<a href="${esc(r.link)}" target="_blank" rel="noopener noreferrer" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs text-slate-300">Open source</a>` : ''}
+                </div>
+            </div>
+            ${r.abstract ? `<details class="mt-3"><summary class="text-xs text-cyan-300 cursor-pointer">Abstract</summary><p class="text-xs text-slate-300 mt-2 leading-relaxed">${esc(r.abstract)}</p></details>` : ''}
+        </div>`).join('');
+}
+
+async function fetchEuropePmc(pmcid) {
+    const res = await fetchTimeout(`https://www.ebi.ac.uk/europepmc/webservices/rest/${pmcid}/fullTextXML`);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const xml = new DOMParser().parseFromString(await res.text(), 'text/xml');
+    const body = xml.querySelector('body');
+    if (!body) throw new Error('no body');
+    const text = el => {
+        const c = el.cloneNode(true);
+        c.querySelectorAll('xref[ref-type="bibr"]').forEach(x => x.remove());
+        return c.textContent.replace(/\s+/g, ' ').replace(/\s*\(\s*[,;\s]*\)/g, '').replace(/\s*\[\s*[,;\s]*\]/g, '').trim();
+    };
+    const lines = [];
+    const abs = xml.querySelector('abstract');
+    if (abs) lines.push('Abstract', '', text(abs), '');
+    const walk = sec => {
+        for (const ch of sec.children) {
+            if (ch.tagName === 'sec') {
+                const t = [...ch.children].find(c => c.tagName === 'title');
+                if (t) lines.push('', t.textContent.trim(), '');
+                walk(ch);
+            } else if (ch.tagName === 'p') lines.push(text(ch), '');
+        }
+    };
+    walk(body);
+    return lines.length > 6 ? lines : null;
+}
+async function fetchPdfLines(url) {
+    const res = await fetchTimeout(url, 30000);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const pdf = await pdfjsLib.getDocument({ data: await res.arrayBuffer() }).promise;
+    return (await extractPdf(pdf)).lines;
+}
+
+async function useResult(i) {
+    const r = searchResults[i];
+    if (!r) return;
+    $('paperAuthor').value = r.authors; $('paperYear').value = r.year; $('paperTitle').value = r.title;
+    $('paperJournal').value = r.journal; $('paperVol').value = r.vol; $('paperDoi').value = r.doi;
+    $('paperText').value = '';
+    $('searchNext').innerHTML = '';
+    setSearchStatus('Loading the paper…', 'info');
+    let lines = null, partial = false;
+    if (r.pmcid) { try { lines = await fetchEuropePmc(r.pmcid); } catch (e) { console.warn('Europe PMC failed', e); } }
+    if (!lines && r.pdf) { try { lines = await fetchPdfLines(r.pdf); } catch (e) { console.warn('PDF fetch failed (usually CORS)', e); } }
+    if (!lines && r.abstract) { lines = ['Abstract', '', r.abstract]; partial = true; }
+    setActivePaper(r.title, lines, partial);
+    const methods = lines && !partial ? findMethods(lines) : null;
+    if (methods) $('paperText').value = methods;
+    const btn = (label, fn) => `<button onclick="${fn}" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 rounded-lg text-xs text-cyan-300">${label}</button>`;
+    let next = btn('Go to References', "switchMain('references')");
+    let msg, kind = 'ok';
+    if (!lines) {
+        msg = 'Reference fields filled, so you can export it. No text was available to analyze: upload the PDF if you have it.'; kind = 'warn';
+    } else if (partial) {
+        msg = 'Full text is not openly available (or the publisher blocks browser access). Only the abstract was loaded; upload the PDF for the Methods section.'; kind = 'warn';
+        next = btn('Summarize abstract', "switchMain('summary'); generateSummary()") + next;
+    } else {
+        msg = methods ? 'Full text loaded and Methods section found.' : 'Full text loaded, but no Methods section was found. You can paste it manually.';
+        if (!methods) kind = 'warn';
+        next = (methods ? btn('Generate protocol', "switchMain('methodology'); generateProtocol()") : '') + btn('Summarize paper', "switchMain('summary'); generateSummary()") + next;
+    }
+    setSearchStatus(msg + ' Review the reference fields in Methodology research.', kind);
+    $('searchNext').innerHTML = next;
+}
+
+/* =====================================================================
    Init
    ===================================================================== */
 window.addEventListener('DOMContentLoaded', async () => {
     lucide.createIcons();
+    switchMain('methodology');
+    setActivePaper(null);
     renderHistory();
     await renderMermaid('graph TD\n  A["Load paper"] --> B["Extract methodology"] --> C["Generate protocol and flowchart"]');
 });
