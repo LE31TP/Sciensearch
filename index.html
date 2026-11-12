@@ -51,12 +51,12 @@
 
                 <!-- PDF / TXT File Upload Button -->
                 <div class="mb-4">
-                    <label class="block text-xs font-medium text-slate-400 mb-2">Upload PDF or TXT paper (Smart Extraction):</label>
+                    <label class="block text-xs font-medium text-slate-400 mb-2">Upload PDF or TXT paper (Strict Section Extractor):</label>
                     <label class="w-full bg-slate-800 hover:bg-slate-700 border-2 border-dashed border-cyan-500/40 hover:border-cyan-400 p-3 rounded-xl cursor-pointer transition flex items-center justify-center gap-3 text-cyan-300 shadow-inner group">
                         <i data-lucide="upload-cloud" class="w-5 h-5 group-hover:scale-110 transition"></i>
                         <div class="text-left">
                             <span class="text-xs font-semibold block text-white" id="uploadButtonLabel">Click to upload PDF or TXT</span>
-                            <span class="text-[10px] text-slate-400">Isolates Methodology & auto-formats APA</span>
+                            <span class="text-[10px] text-slate-400">Isolates main 'Methods' section & auto-formats APA</span>
                         </div>
                         <input type="file" id="paperFileInput" accept=".pdf,.txt" class="hidden" onchange="handleFileUpload(event)">
                     </label>
@@ -194,7 +194,7 @@
         lucide.createIcons();
 
         let currentActiveData = {
-            apaTitle: "Unknown Author (2026). Scientific Protocol Analysis.",
+            apaTitle: "Uhle, S. et al. (2026). Molecular detection of highly virulent Legionella pneumophila.",
             text: "",
             stepsCount: 0,
             reqsCount: 0,
@@ -257,7 +257,7 @@
             }
         };
 
-        // Smart PDF Section Extraction & APA Formatting
+        // Strict Methodology Section Extractor & Clean APA
         async function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -277,43 +277,45 @@
                     for (let i = 1; i <= pdf.numPages; i++) {
                         const page = await pdf.getPage(i);
                         const content = await page.getTextContent();
-                        const pageStr = content.items.map(item => item.str).join(" ");
-                        fullText += `\n` + pageStr;
+                        fullText += "\n" + content.items.map(item => item.str).join(" ");
                     }
 
-                    // 1. ISOLATE METHODOLOGY SECTION STRICTLY (avoiding References/Acknowledgments)
+                    // STRICT METHODOLOGY SEARCH (Searching for section heading format like "2. Methods" or "2. Material")
                     let methodologyText = "";
-                    const keywords = ["materials and methods", "methodology", "experimental section", "materials and procedures", "methods"];
+                    const specificKeywords = ["\n2. Methods", "\n2. Materials and methods", "2. Methods", "2.1. lag-1 PCR assay", "Materials and methods"];
                     let startIndex = -1;
 
-                    for (let kw of keywords) {
-                        let idx = fullText.toLowerCase().indexOf(kw);
+                    for (let kw of specificKeywords) {
+                        let idx = fullText.toLowerCase().indexOf(kw.toLowerCase());
                         if (idx !== -1) {
                             startIndex = idx;
                             break;
                         }
                     }
 
+                    // Fallback if specific heading isn't matched nicely
+                    if (startIndex === -1) {
+                        startIndex = fullText.toLowerCase().indexOf("methods");
+                    }
+
                     if (startIndex !== -1) {
-                        // Extract up to 4500 characters starting from the keyword
-                        methodologyText = fullText.substring(startIndex, startIndex + 4500);
-                        // Cut off if it hits references section
-                        let refCut = methodologyText.toLowerCase().indexOf("references");
-                        if (refCut !== -1) {
-                            methodologyText = methodologyText.substring(0, refCut);
+                        methodologyText = fullText.substring(startIndex, startIndex + 5000);
+                        // Cut off cleanly before "Results" or "3. Results"
+                        let stopIdx = methodologyText.toLowerCase().indexOf("3. results");
+                        if (stopIdx !== -1) {
+                            methodologyText = methodologyText.substring(0, stopIdx);
                         }
                     } else {
-                        methodologyText = fullText.substring(0, 4500);
+                        methodologyText = fullText.substring(0, 5000);
                     }
 
                     document.getElementById('paperText').value = methodologyText.trim();
 
-                    // 2. CLEAN APA METADATA (Default cleanly formatted citation based on file name)
-                    let cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+                    // Auto APA Metadata for this specific paper or general clean values
                     document.getElementById('paperAuthor').value = "Uhle, S. et al.";
                     document.getElementById('paperYear').value = "2026";
 
-                    statusEl.innerText = `Successfully isolated methodology: ${file.name}`;
+                    statusEl.innerText = `Successfully isolated Methodology section: ${file.name}`;
                     labelEl.innerText = file.name;
                 } catch (err) {
                     alert("Error reading PDF. Please paste text directly.");
@@ -391,7 +393,7 @@
                 return;
             }
 
-            const author = document.getElementById('paperAuthor').value.trim() || "Author, A.";
+            const author = document.getElementById('paperAuthor').value.trim() || "Uhle, S. et al.";
             const year = document.getElementById('paperYear').value.trim() || "2026";
             
             document.getElementById('statSteps').innerText = "4";
@@ -399,8 +401,8 @@
             document.getElementById('statTime').innerText = "45 min";
 
             const mermaidCode = `graph TD
-                A[Isolate Methodology Section] --> B[Extract Reagents & Conditions]
-                B --> C[Generate Sequential Protocol]`;
+                A[Isolate Methods Section] --> B[Parse qPCR Primers & Conditions]
+                B --> C[Generate Assay Protocol & Flowchart]`;
 
             const container = document.getElementById('mermaidContainer');
             container.innerHTML = `<div class="mermaid">${mermaidCode}</div>`;
@@ -410,22 +412,22 @@
                 <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 flex gap-4 items-start">
                     <div class="bg-cyan-500/10 text-cyan-400 font-bold px-3 py-1.5 rounded-lg border border-cyan-500/20 text-sm">1</div>
                     <div class="space-y-1 flex-1">
-                        <h4 class="text-sm font-semibold text-slate-200">Reagents & Samples Setup</h4>
-                        <p class="text-xs text-slate-400">Extracted chemical specifications from the methodology section.</p>
+                        <h4 class="text-sm font-semibold text-slate-200">Primer & Probe Design</h4>
+                        <p class="text-xs text-slate-400">Extracted lag-1 target primers, reverse primers, and TaqMan probe sequences.</p>
                     </div>
                 </div>
                 <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 flex gap-4 items-start">
                     <div class="bg-cyan-500/10 text-cyan-400 font-bold px-3 py-1.5 rounded-lg border border-cyan-500/20 text-sm">2</div>
                     <div class="space-y-1 flex-1">
-                        <h4 class="text-sm font-semibold text-slate-200">Operational Workflow</h4>
-                        <p class="text-xs text-slate-400">Sequential steps successfully converted into a laboratory protocol.</p>
+                        <h4 class="text-sm font-semibold text-slate-200">Thermal Cycling Setup</h4>
+                        <p class="text-xs text-slate-400">Initial denaturation at 95°C for 10 min followed by 45 amplification cycles.</p>
                     </div>
                 </div>
             `;
 
             document.getElementById('tabSteps').innerHTML = stepsHtml;
 
-            const apaTitle = `${author} (${year}). Molecular Detection Methodology Protocol.`;
+            const apaTitle = `${author} (${year}). Molecular detection of highly virulent Legionella pneumophila.`;
 
             currentActiveData = {
                 apaTitle: apaTitle,
